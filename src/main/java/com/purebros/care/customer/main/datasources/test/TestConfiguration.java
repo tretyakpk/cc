@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -29,7 +30,7 @@ public class TestConfiguration {
     public LocalContainerEntityManagerFactoryBean testEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(testDataSource());
-        em.setPackagesToScan("com.purebros.care.customer.main.datasources.test.entity");
+        em.setPackagesToScan("com.purebros.care.customer.main.datasources.user.entity");
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         return em;
     }
@@ -42,10 +43,9 @@ public class TestConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "test.datasource")
     public DataSource testDataSource() {
 
-        System.out.println("<<<<<< Connection to test database >>>>>>"
+        System.out.println("<<<<<< Connection to test database >>>>>> "
             + "class: " + env.getProperty("test.datasource.driver-class-name")
             + "; url: " + env.getProperty("test.datasource.url")
             + "; username: " + env.getProperty("test.datasource.username")
@@ -53,7 +53,6 @@ public class TestConfiguration {
         );
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-
         dataSource.setDriverClassName(env.getProperty("test.datasource.driver-class-name"));
         dataSource.setUrl(     env.getProperty("test.datasource.url"));
         dataSource.setUsername(env.getProperty("test.datasource.username"));

@@ -1,8 +1,6 @@
 package com.purebros.care.customer.main.datasources.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -47,17 +45,14 @@ public class UserDBConfiguration {
 
     @Bean
     @Primary
-    @ConfigurationProperties(prefix = "user.datasource")
     public DataSource userDataSource() {
 
-        System.out.println("<<<<<< Connection to user database >>>>>>");
-        System.out.println(env.getProperty("user.datasource.driver-class-name"));
-        System.out.println(env.getProperty("user.datasource.url"));
-        System.out.println(env.getProperty("user.datasource.username"));
-        System.out.println(env.getProperty("user.datasource.password"));
-
-//        return DataSourceBuilder.create()
-//                .build();
+        System.out.println("<<<<<< Connection to user database >>>>>> "
+                + "class: " + env.getProperty("user.datasource.driver-class-name")
+                + "; url: " + env.getProperty("user.datasource.url")
+                + "; username: " + env.getProperty("user.datasource.username")
+                + "; password: " + env.getProperty("user.datasource.password")
+        );
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(env.getProperty("user.datasource.driver-class-name"));
