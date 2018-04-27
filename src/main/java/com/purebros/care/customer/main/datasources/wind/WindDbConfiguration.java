@@ -15,7 +15,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource({ "classpath:db_wind.properties" })
+@PropertySource({ "classpath:db_wind.yml" })
 @EnableJpaRepositories(
         basePackages = "com.purebros.care.customer.main.datasources.wind",
         entityManagerFactoryRef = "windEntityManager",

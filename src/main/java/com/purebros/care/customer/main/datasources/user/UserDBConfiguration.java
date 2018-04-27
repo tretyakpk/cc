@@ -16,7 +16,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource({ "classpath:db_user.properties" })
+@PropertySource({ "classpath:db_user.yml" })
 @EnableJpaRepositories(
         basePackages = "com.purebros.care.customer.main.datasources.user",
         entityManagerFactoryRef = "userEntityManager",
