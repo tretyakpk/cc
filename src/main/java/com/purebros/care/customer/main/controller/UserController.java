@@ -4,6 +4,8 @@ import com.purebros.care.customer.main.datasources.user.dao.UserDao;
 import com.purebros.care.customer.main.datasources.user.dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,12 +22,15 @@ public class UserController {
     @Qualifier("userDataSource")
     private DataSource userDataSource;
 
-    @ResponseBody
     @RequestMapping(value = "/{name}/{password}", method = RequestMethod.GET)
-    public Optional<User> user(@PathVariable("name") String userName, @PathVariable("password") String password){
+    public ResponseEntity<User> user(@PathVariable("name") String userName, @PathVariable("password") String password){
         UserDao userDao =  new UserDao();
         userDao.setDataSource(userDataSource);
-        System.out.println(userDao.findUser(userName, password));
-        return userDao.findUser(userName, password);
+        Optional<User> user  = (userDao.findUser(userName, password));
+
+        System.out.println(user);
+
+        return userDao.findUser(userName, password).map(user1 -> new ResponseEntity<>(user1, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

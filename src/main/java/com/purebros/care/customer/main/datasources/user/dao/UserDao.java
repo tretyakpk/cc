@@ -1,10 +1,13 @@
 package com.purebros.care.customer.main.datasources.user.dao;
 
+import com.purebros.care.customer.main.datasources.user.dto.CSP;
+import com.purebros.care.customer.main.datasources.user.dto.Role;
 import com.purebros.care.customer.main.datasources.user.dto.User;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.GenericStoredProcedure;
 import org.springframework.jdbc.object.StoredProcedure;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 
 import javax.sql.DataSource;
 import java.sql.Types;
@@ -13,6 +16,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+// Need to refactor fuck
 @Service
 public class UserDao {
 
@@ -31,12 +35,10 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_Password", Types.VARCHAR));
         Map<String, Object> result = procedure.execute(userName, password);
 
-
         // Get #result-set-1 as result to parse it because we can't use method get(key)
         // if stored procedure isn't return value as OUT parameter
         ArrayList res = (ArrayList) result.get("#result-set-1");
 
-        // if user not found
         if(res.isEmpty()) {
             return Optional.empty();
         } else {
@@ -50,7 +52,61 @@ public class UserDao {
                     .created_at((Date) userData.get("InsertDate"))
                     .build();
 
+            user.setRoles(this.findUserRole(user.getId()));
+            user.setCsps(this.findUserCsps(user.getId()));
+
             return Optional.of(user);
         }
+    }
+
+    public ArrayList<Role> findUserRole(Integer userId){
+
+        StoredProcedure procedure = new GenericStoredProcedure();
+        procedure.setDataSource(userDataSource);
+        procedure.setSql("UserFunctions_GetData");
+        procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
+        Map<String, Object> result = procedure.execute(userId);
+
+        // Get #result-set-1 as result to parse it because we can't use method get(key)
+        // if stored procedure isn't return value as OUT parameter
+        ArrayList res = (ArrayList) result.get("#result-set-1");
+
+        ArrayList<Role> roles = new ArrayList<>();
+
+        res.forEach(v -> {
+            Role role = Role.builder()
+                    .role((String) ((LinkedCaseInsensitiveMap) v).get("RoleName")
+                            .toString().toUpperCase().replace(' ', '_')
+                    )
+                    .build();
+            roles.add(role);
+        });
+
+        return roles;
+    }
+
+    private ArrayList<CSP> findUserCsps(Integer userId) {
+
+        StoredProcedure procedure = new GenericStoredProcedure();
+        procedure.setDataSource(userDataSource);
+        procedure.setSql("User_GetAllParameters");
+        procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
+        Map<String, Object> result = procedure.execute(userId);
+
+        // Get #result-set-1 as result to parse it because we can't use method get(key)
+        // if stored procedure isn't return value as OUT parameter
+        ArrayList res = (ArrayList) result.get("#result-set-1");
+
+        ArrayList<CSP> csps = new ArrayList<>();
+
+        res.forEach(v -> {
+            CSP csp = CSP.builder()
+                    .id(Integer.parseInt(((LinkedCaseInsensitiveMap) v).get("Value").toString()))
+                    .build();
+            csps.add(csp);
+        });
+
+        return csps;
+
     }
 }
