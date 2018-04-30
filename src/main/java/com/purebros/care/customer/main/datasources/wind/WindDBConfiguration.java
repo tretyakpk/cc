@@ -1,6 +1,8 @@
 package com.purebros.care.customer.main.datasources.wind;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -12,6 +14,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(
@@ -41,6 +44,7 @@ public class WindDBConfiguration {
     }
 
     @Bean
+    @ConfigurationProperties(prefix = "wind")
     public DataSource windDataSource() {
 
         System.out.println("<<<<<< Connection to wind database >>>>>> "
@@ -55,6 +59,10 @@ public class WindDBConfiguration {
         dataSource.setUrl(     env.getProperty("wind.url"));
         dataSource.setUsername(env.getProperty("wind.username"));
         dataSource.setPassword(env.getProperty("wind.password"));
+        Properties props = new Properties();
+        props.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+
+        dataSource.setConnectionProperties(props);
 
         return dataSource;
     }

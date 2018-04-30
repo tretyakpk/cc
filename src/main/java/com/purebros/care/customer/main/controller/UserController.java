@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
-import java.util.Optional;
 
 
 @Component
@@ -26,11 +28,14 @@ public class UserController {
     public ResponseEntity<User> user(@PathVariable("name") String userName, @PathVariable("password") String password){
         UserDao userDao =  new UserDao();
         userDao.setDataSource(userDataSource);
-        Optional<User> user  = (userDao.findUser(userName, password));
+        User user  = (userDao.findUser(userName, password));
 
         System.out.println(user);
 
-        return userDao.findUser(userName, password).map(user1 -> new ResponseEntity<>(user1, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        if(user == null)
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        else
+            return new ResponseEntity(user, HttpStatus.NOT_FOUND);
+
     }
 }

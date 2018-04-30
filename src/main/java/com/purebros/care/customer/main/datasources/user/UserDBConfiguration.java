@@ -1,6 +1,7 @@
 package com.purebros.care.customer.main.datasources.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -13,6 +14,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(
@@ -45,6 +47,7 @@ public class UserDBConfiguration {
 
     @Bean
     @Primary
+    @ConfigurationProperties(prefix = "user")
     public DataSource userDataSource() {
 
         System.out.println("<<<<<< Connection to user database >>>>>> "
@@ -59,6 +62,11 @@ public class UserDBConfiguration {
         dataSource.setUrl(     env.getProperty("user.url"));
         dataSource.setUsername(env.getProperty("user.username"));
         dataSource.setPassword(env.getProperty("user.password"));
+
+        Properties props = new Properties();
+        props.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+
+        dataSource.setConnectionProperties(props);
 
         return dataSource;
     }

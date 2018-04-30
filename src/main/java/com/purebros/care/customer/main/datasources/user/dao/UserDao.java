@@ -3,31 +3,37 @@ package com.purebros.care.customer.main.datasources.user.dao;
 import com.purebros.care.customer.main.datasources.user.dto.CSP;
 import com.purebros.care.customer.main.datasources.user.dto.Role;
 import com.purebros.care.customer.main.datasources.user.dto.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.GenericStoredProcedure;
 import org.springframework.jdbc.object.StoredProcedure;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 
-// Need to refactor fuck
 @Service
 public class UserDao {
 
+
+    @Autowired
     private DataSource userDataSource;
 
     public void setDataSource(DataSource dataSource) {
         this.userDataSource = dataSource;
     }
 
-    public Optional<User> findUser(String userName, String password){
 
+    public User findUser(String userName, String password){
+
+
+        System.out.println("name " + userName);
+        System.out.println("pass " + password);
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(userDataSource);
         procedure.setSql("User_GetData");
@@ -35,12 +41,10 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_Password", Types.VARCHAR));
         Map<String, Object> result = procedure.execute(userName, password);
 
-        // Get #result-set-1 as result to parse it because we can't use method get(key)
-        // if stored procedure isn't return value as OUT parameter
         ArrayList res = (ArrayList) result.get("#result-set-1");
 
         if(res.isEmpty()) {
-            return Optional.empty();
+            return null;
         } else {
             Map userData = (Map) res.get(0);
             User user = User.builder()
@@ -51,11 +55,11 @@ public class UserDao {
                     .number((String)   userData.get("String"))
                     .created_at((Date) userData.get("InsertDate"))
                     .build();
-
+            System.out.println(user);
             user.setRoles(this.findUserRole(user.getId()));
             user.setCsps(this.findUserCsps(user.getId()));
 
-            return Optional.of(user);
+            return user;
         }
     }
 
@@ -67,10 +71,7 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
         Map<String, Object> result = procedure.execute(userId);
 
-        // Get #result-set-1 as result to parse it because we can't use method get(key)
-        // if stored procedure isn't return value as OUT parameter
         ArrayList res = (ArrayList) result.get("#result-set-1");
-
         ArrayList<Role> roles = new ArrayList<>();
 
         res.forEach(v -> {
@@ -92,11 +93,7 @@ public class UserDao {
         procedure.setSql("User_GetAllParameters");
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
         Map<String, Object> result = procedure.execute(userId);
-
-        // Get #result-set-1 as result to parse it because we can't use method get(key)
-        // if stored procedure isn't return value as OUT parameter
         ArrayList res = (ArrayList) result.get("#result-set-1");
-
         ArrayList<CSP> csps = new ArrayList<>();
 
         res.forEach(v -> {
