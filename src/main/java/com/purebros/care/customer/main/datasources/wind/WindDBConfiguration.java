@@ -3,7 +3,6 @@ package com.purebros.care.customer.main.datasources.wind;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -15,13 +14,12 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource({ "classpath:db_wind.yml" })
 @EnableJpaRepositories(
         basePackages = "com.purebros.care.customer.main.datasources.wind",
         entityManagerFactoryRef = "windEntityManager",
         transactionManagerRef = "windTransactionManager"
 )
-public class WindDbConfiguration {
+public class WindDBConfiguration {
 
     @Autowired
     private Environment env;
@@ -46,17 +44,17 @@ public class WindDbConfiguration {
     public DataSource windDataSource() {
 
         System.out.println("<<<<<< Connection to wind database >>>>>> "
-            + "class: " + env.getProperty("driver-class-name")
-            + "; url: " + env.getProperty("url")
-            + "; username: " + env.getProperty("username")
-            + "; password: " + env.getProperty("password")
+                + "class: " + env.getProperty("wind.driver-class-name")
+                + "; url: " + env.getProperty("wind.url")
+                + "; username: " + env.getProperty("wind.username")
+                + "; password: " + env.getProperty("wind.password")
         );
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getProperty("driver-class-name"));
-        dataSource.setUrl(     env.getProperty("url"));
-        dataSource.setUsername(env.getProperty("username"));
-        dataSource.setPassword(env.getProperty("password"));
+        dataSource.setDriverClassName(env.getProperty("wind.driver-class-name"));
+        dataSource.setUrl(     env.getProperty("wind.url"));
+        dataSource.setUsername(env.getProperty("wind.username"));
+        dataSource.setPassword(env.getProperty("wind.password"));
 
         return dataSource;
     }
