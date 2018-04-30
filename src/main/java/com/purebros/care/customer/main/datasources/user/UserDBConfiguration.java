@@ -1,13 +1,12 @@
 package com.purebros.care.customer.main.datasources.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -16,7 +15,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource({ "classpath:db_user.yml" })
 @EnableJpaRepositories(
         basePackages = "com.purebros.care.customer.main.datasources.user",
         entityManagerFactoryRef = "userEntityManager",
@@ -24,8 +22,12 @@ import javax.sql.DataSource;
 )
 public class UserDBConfiguration {
 
+    private final Environment env;
+
     @Autowired
-    private Environment env;
+    public UserDBConfiguration(Environment env) {
+        this.env = env;
+    }
 
     @Bean
     @Primary
@@ -50,18 +52,17 @@ public class UserDBConfiguration {
     public DataSource userDataSource() {
 
         System.out.println("<<<<<< Connection to user database >>>>>> "
-                + "class: " + env.getProperty("driver-class-name")
-                + "; url: " + env.getProperty("url")
-                + "; username: " + env.getProperty("username")
-                + "; password: " + env.getProperty("password")
+                + "class: " + env.getProperty("user.driver-class-name")
+                + "; url: " + env.getProperty("user.url")
+                + "; username: " + env.getProperty("user.username")
+                + "; password: " + env.getProperty("user.password")
         );
 
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getProperty("driver-class-name"));
-        dataSource.setUrl(env.getProperty("url"));
-        dataSource.setUsername(env.getProperty("username"));
-        dataSource.setPassword(env.getProperty("password"));
-
-        return dataSource;
+        return DataSourceBuilder.create()
+                .driverClassName(env.getProperty("user.driver-class-name"))
+                .url(env.getProperty("user.url"))
+                .username(env.getProperty("user.username"))
+                .password(env.getProperty("user.password"))
+                .build();
     }
 }

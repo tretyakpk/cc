@@ -3,6 +3,8 @@ package com.purebros.care.customer.main.datasources.user.dao;
 import com.purebros.care.customer.main.datasources.user.dto.CSP;
 import com.purebros.care.customer.main.datasources.user.dto.Role;
 import com.purebros.care.customer.main.datasources.user.dto.User;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.GenericStoredProcedure;
 import org.springframework.jdbc.object.StoredProcedure;
@@ -16,14 +18,15 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
-// Need to refactor fuck
+
 @Service
 public class UserDao {
 
-    private DataSource userDataSource;
+    private final DataSource userDataSource;
 
-    public void setDataSource(DataSource dataSource) {
-        this.userDataSource = dataSource;
+    @Autowired
+    public UserDao(DataSource userDataSource) {
+        this.userDataSource = userDataSource;
     }
 
     public Optional<User> findUser(String userName, String password){
@@ -35,8 +38,6 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_Password", Types.VARCHAR));
         Map<String, Object> result = procedure.execute(userName, password);
 
-        // Get #result-set-1 as result to parse it because we can't use method get(key)
-        // if stored procedure isn't return value as OUT parameter
         ArrayList res = (ArrayList) result.get("#result-set-1");
 
         if(res.isEmpty()) {
@@ -59,7 +60,7 @@ public class UserDao {
         }
     }
 
-    public ArrayList<Role> findUserRole(Integer userId){
+    private ArrayList<Role> findUserRole(Integer userId){
 
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(userDataSource);
@@ -67,8 +68,6 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
         Map<String, Object> result = procedure.execute(userId);
 
-        // Get #result-set-1 as result to parse it because we can't use method get(key)
-        // if stored procedure isn't return value as OUT parameter
         ArrayList res = (ArrayList) result.get("#result-set-1");
 
         ArrayList<Role> roles = new ArrayList<>();
@@ -93,8 +92,6 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
         Map<String, Object> result = procedure.execute(userId);
 
-        // Get #result-set-1 as result to parse it because we can't use method get(key)
-        // if stored procedure isn't return value as OUT parameter
         ArrayList res = (ArrayList) result.get("#result-set-1");
 
         ArrayList<CSP> csps = new ArrayList<>();
