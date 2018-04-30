@@ -89,6 +89,7 @@
 			<version>1.16.20</version>
 			<scope>provided</scope>
 		</dependency>
+        <!-- End lombok -->
 
 		<!-- Yml -->
 		<dependency>
@@ -96,6 +97,7 @@
 			<artifactId>snakeyaml</artifactId>
 			<version>1.21</version>
 		</dependency>
+        <!-- End yaml -->
 
 		<!-- Hibernate -->
 		<dependency>
@@ -103,6 +105,39 @@
 			<artifactId>hibernate-core</artifactId>
 			<version>5.2.10.Final</version>
 		</dependency>
+        <!-- End hibernate -->
+
+		<!-- Tymeleaf -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf</groupId>
+			<artifactId>thymeleaf</artifactId>
+			<version>3.0.9.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf</groupId>
+			<artifactId>thymeleaf-spring4</artifactId>
+			<version>3.0.9.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity4</artifactId>
+			<version>3.0.2.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>nz.net.ultraq.thymeleaf</groupId>
+			<artifactId>thymeleaf-layout-dialect</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-java8time</artifactId>
+			<version>3.0.0.RELEASE</version>
+		</dependency>
+        <!-- End thymeleaf -->
 
 		<dependency>
 			<groupId>junit</groupId>

@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pure Bros Customer Care service</title>
+
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/assets/font-awesome/css/font-awesome.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/style.css}" rel="stylesheet">
+
+    <!-- custom css -->
+    <link th:href="@{/assets/css/custom/custom.css}" rel="stylesheet">
+
+    <!-- footable css -->
+    <link th:href="@{/assets/css/plugins/footable/footable.core.css}" rel="stylesheet">
+</head>
+
+<body class="top-navigation pace-done">
+<div id="wrapper">
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom white-bg">
+            <nav class="navbar navbar-static-top" role="navigation">
+                <div class="navbar-header">
+                    <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+                        <i class="fa fa-reorder"></i>
+                    </button>
+                    <span class="navbar-brand custom-bg">PureBros Customer Care</span>
+                </div>
+                <div class="navbar-collapse collapse custom-bg" id="navbar">
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li style="font-size: 14px;">
+                            Username
+                        </li>
+                        <li>
+                            <a href="login.html" class="custom-bg">
+                                <i class="fa fa-sign-out"></i> Log out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        <div class="wrapper wrapper-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-content">
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-4">
+                                        <input type="text" id="msisdn" class="form-control custom-search-field" placeholder="MSISDN">
+                                    </div>
+                                    <div class="col-md-2 col-sm-2">
+                                        <select class="form-control custom-select-field" id="carrier-select">
+                                            <option>VODAFONE</option>
+                                            <option>WIND</option>
+                                            <option>TIM</option>
+                                            <option>H3G</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 col-sm-2">
+                                        <a class="search btn custom-bg">Search</a>
+                                    </div>
+                                    <div class="col-md-1 col-sm-2">
+                                        <button class="btn custom-bg">History</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-content">
+                                <table class="table table-hover footable table-stripped toggle-arrow-tiny text-center" >
+                                    <thead >
+                                    <tr >
+                                        <th class="text-center" data-sort-ignore="true">Msisdn</th>
+                                        <th class="text-center" data-sort-ignore="true">Carrier</th>
+                                        <th class="text-center">Service</th>
+                                        <th class="text-center">Subscribed From</th>
+                                        <th class="text-center" data-sort-ignore="true">Status</th>
+                                        <th class="text-center" data-sort-ignore="true"></th>
+                                        <th class="text-center" data-sort-ignore="true"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td class="user-info font-bold">33333333333</td>
+                                        <td>wind</td>
+                                        <td>hello.world1</td>
+                                        <td>2018-04-11 06:52</td>
+                                        <td><i class="fa fa-check text-navy"></i></td>
+                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
+                                        <td><a class="btn btn-sm btn-danger custom-buttom-margin">Deactivate</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="user-info-vodafone font-bold">33333333333</td>
+                                        <td>vodafone</td>
+                                        <td>hello.world2</td>
+                                        <td>2018-04-11 06:53</td>
+                                        <td><i class="fa fa-times-circle text-danger"></i></td>
+                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="user-info font-bold">33333333333</td>
+                                        <td>tim</td>
+                                        <td>hello.world3</td>
+                                        <td>2018-04-11 06:44</td>
+                                        <td><i class="fa fa-check text-navy"></i></td>
+                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
+                                        <td><a class="btn btn-sm btn-danger custom-buttom-margin">Deactivate</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="user-info font-bold">33333333333</td>
+                                        <td>h3g</td>
+                                        <td>hello.world4</td>
+                                        <td>2018-04-11 06:23</td>
+                                        <td><i class="fa fa-times-circle text-danger"></i></td>
+                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
+                                        <td></td>
+                                    </tr>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <td colspan="7">
+                                            <ul class="pagination pull-right"></ul>
+                                        </td>
+
+                                    </tr>
+                                    </tfoot>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div>
+                <strong>Copyright:</strong> Pure Bros Mobile 2018
+            </div>
+        </div>
+
+    </div>
+
+    <!-- mainly scripts -->
+    <script th:src="@{/assets/js/jquery-3.1.1.min.js}"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}"></script>
+
+    <!-- fooTable -->
+    <script th:src="@{/assets/js/plugins/footable/footable.all.min.js}"></script>
+
+    <!-- custom inspinia and plugin javascript -->
+    <script th:src="@{/assets/js/inspinia.js}"></script>
+    <script th:src="@{/assets/js/plugins/pace/pace.min.js}"></script>
+
+    <!-- page-level scripts -->
+    <script>
+        $(document).ready(function() {
+
+            $('.footable').footable();
+            $('.all-user-data').footable({
+                // "expandFirst": true,
+                "columns": [
+                    { "name": "id", "visible": false },
+                    { "name": "firstName", "title": "First Name" },
+                    { "name": "lastName", "title": "Last Name" },
+                    { "name": "jobTitle", "title": "Job Title", "breakpoints": "xs" },
+                    { "name": "started", "title": "Started On", "breakpoints": "xs sm" },
+                    { "name": "dob", "title": "Date of Birth", "breakpoints": "all" }
+                ]
+
+            });
+
+            $('.user-info-vodafone').on('click', function (e) {
+                e.preventDefault();
+                $('#vodafone-modal').modal();
+            });
+
+            $('.user-info').on('click', function (e) {
+                e.preventDefault();
+                $('#user-info').modal();
+            });
+        });
+    </script>
+
+</div>
+</body>
+</html>
