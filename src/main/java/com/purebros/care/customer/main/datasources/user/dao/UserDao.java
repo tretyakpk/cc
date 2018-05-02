@@ -22,15 +22,14 @@ public class UserDao {
 
     private static final String DATA_STORAGE = "#result-set-1";
 
-    @Autowired
-    private DataSource userDataSource;
+    private final DataSource userDataSource;
 
-    public void setDataSource(DataSource dataSource) {
-        this.userDataSource = dataSource;
+    @Autowired
+    public UserDao(DataSource userDataSource) {
+        this.userDataSource = userDataSource;
     }
 
-
-    public Optional<User> findUser(String userName, String password){
+    public User findUser(String userName, String password){
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(userDataSource);
         procedure.setSql("User_GetData");
@@ -40,19 +39,7 @@ public class UserDao {
 
         ArrayList res = (ArrayList) result.get(DATA_STORAGE);
 
-        return Optional.ofNullable(getUser(res));
-    }
-
-    public Optional<User> findUserByUsername(String userName){
-        StoredProcedure procedure = new GenericStoredProcedure();
-        procedure.setDataSource(userDataSource);
-        procedure.setSql("User_GetDataByUsername");
-        procedure.declareParameter(new SqlParameter("in_UserName", Types.VARCHAR));
-        Map<String, Object> result = procedure.execute(userName);
-
-        ArrayList res = (ArrayList) result.get(DATA_STORAGE);
-
-        return Optional.ofNullable(getUser(res));
+        return getUser(res);
     }
 
     private User getUser(ArrayList res) {
@@ -75,7 +62,7 @@ public class UserDao {
         }
     }
 
-    public ArrayList<Role> findUserRole(Integer userId){
+    private ArrayList<Role> findUserRole(Integer userId){
 
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(userDataSource);

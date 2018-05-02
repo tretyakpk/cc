@@ -22,9 +22,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable();
         http.authorizeRequests()
-            .antMatchers("/secured/**", "/subscriptions/secured").authenticated()
+            .antMatchers("/secured/**").authenticated()
                 .anyRequest().permitAll()
-                .and().formLogin().loginPage("/login").defaultSuccessUrl("/subscriptions/secured").permitAll()
+                .and().formLogin().loginPage("/login").permitAll()
                 .and().logout().logoutSuccessUrl("/login");
     }
 

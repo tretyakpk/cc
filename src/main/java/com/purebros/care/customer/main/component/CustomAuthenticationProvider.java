@@ -1,8 +1,7 @@
 package com.purebros.care.customer.main.component;
 
-import com.purebros.care.customer.main.datasources.user.dao.UserDao;
 import com.purebros.care.customer.main.datasources.user.dto.CustomUserDetails;
-import com.purebros.care.customer.main.datasources.user.dto.User;
+import com.purebros.care.customer.main.service.CustomUserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,49 +9,36 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserDao userDao;
+    private final CustomUserDetailsServiceImpl customUserDetailsService;
 
     @Autowired
-    public CustomAuthenticationProvider(UserDao userDao) {
-        this.userDao = userDao;
+    public CustomAuthenticationProvider(CustomUserDetailsServiceImpl customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
         String name     = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        System.out.println(name);
-        System.out.println(password);
-
-        Optional<User> optionalUser = userDao.findUser(name, password);
-
-        if(!optionalUser.isPresent())
-            throw new UsernameNotFoundException("Username not found");
-
-        CustomUserDetails customUserDetails = optionalUser.map(CustomUserDetails::new).get();
-
-        System.out.println("custom user details: ");
-        System.out.println(customUserDetails);
+        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsernameAndPasoword(name, password);
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        optionalUser.ifPresent(user -> user.getRoles().forEach(role -> {
+        userDetails.getRoles().forEach(role -> {
             grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole()));
-        }));
+        });
 
-        return new UsernamePasswordAuthenticationToken(name, password, grantedAuthorities);
+        System.out.println("successfully login: " + name);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, password, grantedAuthorities);
     }
 
     @Override
