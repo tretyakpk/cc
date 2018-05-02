@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,7 @@
                 <div class="navbar-collapse collapse custom-bg" id="navbar">
                     <ul class="nav navbar-top-links navbar-right">
                         <li style="font-size: 14px;">
-                            Username
+                            <span sec:authentication="name">Username</span>
                         </li>
                         <li>
                             <a th:href="@{/logout}" class="custom-bg">
@@ -104,19 +105,20 @@
              */
             function showSubscriptionsTable() {
                 var parentTable = $('#subscriptions');
+                parentTable.find('#subscriptions-filter').remove();
                 parentTable.find('table').remove();
                 parentTable.append(
                     '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-filter" placeholder="Search in table">' +
                     '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="5" data-filter=#subscriptions-filter >' +
                         '<thead >' +
                             '<tr>' +
-                                '<th class="text-center" data-sort-ignore="true">Msisdn</th>' +
-                                '<th class="text-center" data-sort-ignore="true">Carrier</th>' +
+                                '<th class="text-center" data-sort-ignore="true">MSISDN</th>' +
+                                '<th class="text-center" data-sort-ignore="true">CARRIER</th>' +
                                 '<th class="text-center">CSP</th>' +
-                                '<th class="text-center">Service</th>' +
-                                '<th class="text-center">Subscribed from</th>' +
-                                '<th class="text-center">Subscribed to</th>' +
-                                '<th class="text-center" data-sort-ignore="true">Status</th>' +
+                                '<th class="text-center">SERVICE</th>' +
+                                '<th class="text-center">SUBSCRIBED FROM</th>' +
+                                '<th class="text-center">SUBSCRIBED TO</th>' +
+                                '<th class="text-center" data-sort-ignore="true">STATUS</th>' +
                                 '<th class="text-center" data-sort-ignore="true"></th>' +
                                 '<th class="text-center" data-sort-ignore="true"></th>' +
                             '</tr>' +
