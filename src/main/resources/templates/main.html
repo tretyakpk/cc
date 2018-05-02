@@ -106,7 +106,8 @@
                 var parentTable = $('#subscriptions');
                 parentTable.find('table').remove();
                 parentTable.append(
-                    '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" >' +
+                    '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-filter" placeholder="Search in table">' +
+                    '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="5" data-filter=#subscriptions-filter >' +
                         '<thead >' +
                             '<tr>' +
                                 '<th class="text-center" data-sort-ignore="true">Msisdn</th>' +
@@ -153,10 +154,10 @@
                                     '<td>' + returnedData[i]['providerName'] + '</td>' +
                                     '<td>' + returnedData[i]['serviceName'] + '</td>' +
                                     '<td>' + returnedData[i]['subscriptionStart'] + '</td>' +
-                                    '<td>' + returnedData[i]['subscriptionEnd'] + '</td>' +
+                                    '<td>' + (returnedData[i]['subscriptionEnd'] ? returnedData[i]['subscriptionEnd'] : '') + '</td>' +
                                     '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger"></i>')  + '</td>' +
-                                    '<td>' + '<a class="btn btn-sm btn-success custom-buttom-margin">Details</a>' + '</td>' +
                                     '<td>' + (returnedData[i]['active'] ? '<a class="btn btn-sm btn-danger custom-buttom-margin">Deactivate</a>' : '') + '</td>' +
+                                    '<td>' + '<a class="btn btn-sm btn-success custom-buttom-margin">Details</a>' + '</td>' +
                                     '</tr>');
                             }
                         } else {
