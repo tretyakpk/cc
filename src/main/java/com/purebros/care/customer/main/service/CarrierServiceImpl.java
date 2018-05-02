@@ -26,10 +26,20 @@ public class CarrierServiceImpl implements CarrierService {
     private static final String H3G  = "h3g";
 
     private final DataSource windDataSource;
+    private final DataSource vodafoneDataSource;
+    private final DataSource timDataSource;
+    private final DataSource h3gDataSource;
 
     @Autowired
-    public CarrierServiceImpl(@Qualifier("windDataSource") DataSource windDataSource) {
+    public CarrierServiceImpl(@Qualifier("windDataSource") DataSource windDataSource,
+                              @Qualifier("vodafoneDataSource") DataSource vodaDataSource,
+                              @Qualifier("timDataSource") DataSource timDataSource,
+                              @Qualifier("h3gDataSource") DataSource h3gDataSource
+    ) {
         this.windDataSource = windDataSource;
+        this.vodafoneDataSource = vodaDataSource;
+        this.timDataSource = timDataSource;
+        this.h3gDataSource = h3gDataSource;
     }
 
     @Override
@@ -63,6 +73,12 @@ public class CarrierServiceImpl implements CarrierService {
         switch (carrierName){
             case WIND:
                 return windDataSource;
+            case VODA:
+                return vodafoneDataSource;
+            case TIM:
+                return timDataSource;
+            case H3G:
+                return h3gDataSource;
             default: throw new RuntimeException("not found dataSource for " + carrierName);
         }
     }

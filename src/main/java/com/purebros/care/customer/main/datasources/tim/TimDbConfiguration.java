@@ -1,4 +1,4 @@
-package com.purebros.care.customer.main.datasources.wind;
+package com.purebros.care.customer.main.datasources.tim;
 
 import com.purebros.care.customer.main.component.CustomAuthenticationProvider;
 import org.slf4j.Logger;
@@ -19,53 +19,53 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.purebros.care.customer.main.datasources.wind",
-        entityManagerFactoryRef = "windEntityManager",
-        transactionManagerRef = "windTransactionManager"
+        basePackages = "com.purebros.care.customer.main.datasources.tim",
+        entityManagerFactoryRef = "timEntityManager",
+        transactionManagerRef = "timTransactionManager"
 )
-public class WindDBConfiguration {
+public class TimDbConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
     private final Environment env;
 
     @Autowired
-    public WindDBConfiguration(Environment env) {
+    public TimDbConfiguration(Environment env) {
         this.env = env;
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean windEntityManager() {
+    public LocalContainerEntityManagerFactoryBean timEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(windDataSource());
-        em.setPackagesToScan("com.purebros.care.customer.main.datasources.wind");
+        em.setDataSource(timDataSource());
+        em.setPackagesToScan("com.purebros.care.customer.main.datasources.tim");
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         return em;
     }
 
     @Bean
-    public JpaTransactionManager windTransactionManager(EntityManagerFactory entityManagerFactory) {
+    public JpaTransactionManager timTransactionManager(EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory);
         return transactionManager;
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "wind")
-    public DataSource windDataSource() {
+    @ConfigurationProperties(prefix = "tim")
+    public DataSource timDataSource() {
 
-        logger.info("<<<<<< Connection to wind database >>>>>> "
-                + "class: " + env.getProperty("wind.driver-class-name")
-                + "; url: " + env.getProperty("wind.url")
-                + "; username: " + env.getProperty("wind.username")
-                + "; password: " + env.getProperty("wind.password")
+        logger.info("<<<<<< Connection to tim database >>>>>> "
+                + "class: " + env.getProperty("tim.driver-class-name")
+                + "; url: " + env.getProperty("tim.url")
+                + "; username: " + env.getProperty("tim.username")
+                + "; password: " + env.getProperty("tim.password")
         );
 
         return DataSourceBuilder.create()
-                .username(env.getProperty("wind.username"))
-                .password(env.getProperty("wind.password"))
-                .driverClassName(env.getProperty("wind.driver-class-name"))
-                .url(env.getProperty("wind.url"))
+                .username(env.getProperty("tim.username"))
+                .password(env.getProperty("tim.password"))
+                .driverClassName(env.getProperty("tim.driver-class-name"))
+                .url(env.getProperty("tim.url"))
                 .build();
     }
 }

@@ -1,17 +1,15 @@
-package com.purebros.care.customer.main.datasources.user;
+package com.purebros.care.customer.main.datasources.wind;
 
 import com.purebros.care.customer.main.component.CustomAuthenticationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -21,55 +19,53 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.purebros.care.customer.main.datasources.user",
-        entityManagerFactoryRef = "userEntityManager",
-        transactionManagerRef = "userTransactionManager"
+        basePackages = "com.purebros.care.customer.main.datasources.wind",
+        entityManagerFactoryRef = "windEntityManager",
+        transactionManagerRef = "windTransactionManager"
 )
-public class UserDBConfiguration {
+public class WindDbConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
     private final Environment env;
 
     @Autowired
-    public UserDBConfiguration(Environment env) {
+    public WindDbConfiguration(Environment env) {
         this.env = env;
     }
 
     @Bean
-    @Primary
-    public LocalContainerEntityManagerFactoryBean userEntityManager() {
+    public LocalContainerEntityManagerFactoryBean windEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(userDataSource());
-        em.setPackagesToScan("com.purebros.care.customer.main.datasources.user.entity");
+        em.setDataSource(windDataSource());
+        em.setPackagesToScan("com.purebros.care.customer.main.datasources.wind");
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         return em;
     }
 
     @Bean
-    @Primary
-    public JpaTransactionManager userTransactionManager(EntityManagerFactory entityManagerFactory) {
+    public JpaTransactionManager windTransactionManager(EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory);
         return transactionManager;
     }
 
     @Bean
-    @Primary
-    public DataSource userDataSource() {
+    @ConfigurationProperties(prefix = "wind")
+    public DataSource windDataSource() {
 
-        logger.info("<<<<<< Connection to user database >>>>>> "
-                + "class: " + env.getProperty("user.driver-class-name")
-                + "; url: " + env.getProperty("user.url")
-                + "; username: " + env.getProperty("user.username")
-                + "; password: " + env.getProperty("user.password")
+        logger.info("<<<<<< Connection to wind database >>>>>> "
+                + "class: " + env.getProperty("wind.driver-class-name")
+                + "; url: " + env.getProperty("wind.url")
+                + "; username: " + env.getProperty("wind.username")
+                + "; password: " + env.getProperty("wind.password")
         );
 
         return DataSourceBuilder.create()
-                .username(env.getProperty("user.username"))
-                .password(env.getProperty("user.password"))
-                .driverClassName(env.getProperty("user.driver-class-name"))
-                .url(env.getProperty("user.url"))
+                .username(env.getProperty("wind.username"))
+                .password(env.getProperty("wind.password"))
+                .driverClassName(env.getProperty("wind.driver-class-name"))
+                .url(env.getProperty("wind.url"))
                 .build();
     }
 }
