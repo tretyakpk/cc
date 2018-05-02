@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
+import java.security.Principal;
+import java.util.Optional;
 
 
 @Component
@@ -25,17 +27,19 @@ public class UserController {
     private DataSource userDataSource;
 
     @RequestMapping(value = "/{name}/{password}", method = RequestMethod.GET)
-    public ResponseEntity<User> user(@PathVariable("name") String userName, @PathVariable("password") String password){
+    public ResponseEntity<User> user(@PathVariable("name") String userName, @PathVariable("password") String password, Principal principal){
         UserDao userDao =  new UserDao();
         userDao.setDataSource(userDataSource);
-        User user  = (userDao.findUser(userName, password));
+        Optional<User> user  = (userDao.findUser(userName, password));
 
         System.out.println(user);
 
-        if(user == null)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
+        System.out.println(principal.toString());
+
+        if(user.isPresent())
             return new ResponseEntity(user, HttpStatus.NOT_FOUND);
+        else
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
 
     }
 }

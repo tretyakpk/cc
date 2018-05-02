@@ -1,12 +1,13 @@
 package com.purebros.care.customer.main.datasources.user.dto;
 
-import lombok.Getter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
 @Getter
+@Setter
 public class CustomUserDetails extends User implements UserDetails {
 
     private List<GrantedAuthority> authorities;
@@ -17,7 +18,7 @@ public class CustomUserDetails extends User implements UserDetails {
     private boolean credentialsNonExpired;
     private boolean enabled;
 
-    CustomUserDetails(final User user){
+    public CustomUserDetails(final User user){
         super(user);
     }
 }

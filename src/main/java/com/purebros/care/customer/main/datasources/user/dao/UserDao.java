@@ -10,16 +10,17 @@ import org.springframework.jdbc.object.StoredProcedure;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserDao {
 
+    private static final String DATA_STORAGE = "#result-set-1";
 
     @Autowired
     private DataSource userDataSource;
@@ -29,11 +30,7 @@ public class UserDao {
     }
 
 
-    public User findUser(String userName, String password){
-
-
-        System.out.println("name " + userName);
-        System.out.println("pass " + password);
+    public Optional<User> findUser(String userName, String password){
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(userDataSource);
         procedure.setSql("User_GetData");
@@ -41,8 +38,24 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_Password", Types.VARCHAR));
         Map<String, Object> result = procedure.execute(userName, password);
 
-        ArrayList res = (ArrayList) result.get("#result-set-1");
+        ArrayList res = (ArrayList) result.get(DATA_STORAGE);
 
+        return Optional.ofNullable(getUser(res));
+    }
+
+    public Optional<User> findUserByUsername(String userName){
+        StoredProcedure procedure = new GenericStoredProcedure();
+        procedure.setDataSource(userDataSource);
+        procedure.setSql("User_GetDataByUsername");
+        procedure.declareParameter(new SqlParameter("in_UserName", Types.VARCHAR));
+        Map<String, Object> result = procedure.execute(userName);
+
+        ArrayList res = (ArrayList) result.get(DATA_STORAGE);
+
+        return Optional.ofNullable(getUser(res));
+    }
+
+    private User getUser(ArrayList res) {
         if(res.isEmpty()) {
             return null;
         } else {
@@ -55,10 +68,9 @@ public class UserDao {
                     .number((String)   userData.get("String"))
                     .created_at((Date) userData.get("InsertDate"))
                     .build();
-            System.out.println(user);
+
             user.setRoles(this.findUserRole(user.getId()));
             user.setCsps(this.findUserCsps(user.getId()));
-
             return user;
         }
     }
@@ -71,7 +83,7 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
         Map<String, Object> result = procedure.execute(userId);
 
-        ArrayList res = (ArrayList) result.get("#result-set-1");
+        ArrayList res = (ArrayList) result.get(DATA_STORAGE);
         ArrayList<Role> roles = new ArrayList<>();
 
         res.forEach(v -> {
@@ -93,7 +105,7 @@ public class UserDao {
         procedure.setSql("User_GetAllParameters");
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
         Map<String, Object> result = procedure.execute(userId);
-        ArrayList res = (ArrayList) result.get("#result-set-1");
+        ArrayList res = (ArrayList) result.get(DATA_STORAGE);
         ArrayList<CSP> csps = new ArrayList<>();
 
         res.forEach(v -> {

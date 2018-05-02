@@ -16,8 +16,10 @@ public class User {
     private String  email;
     private String  number;
     private Date    created_at;
+
     @Setter
     private ArrayList<Role> roles;
+
     @Setter
     private ArrayList<CSP>   csps;
 
