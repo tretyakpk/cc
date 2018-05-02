@@ -1,5 +1,8 @@
 package com.purebros.care.customer.main.datasources.user;
 
+import com.purebros.care.customer.main.component.CustomAuthenticationProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +26,8 @@ import javax.sql.DataSource;
         transactionManagerRef = "userTransactionManager"
 )
 public class UserDBConfiguration {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
     private final Environment env;
 
@@ -53,7 +58,7 @@ public class UserDBConfiguration {
     @Primary
     public DataSource userDataSource() {
 
-        System.out.println("<<<<<< Connection to user database >>>>>> "
+        logger.info("<<<<<< Connection to user database >>>>>> "
                 + "class: " + env.getProperty("user.driver-class-name")
                 + "; url: " + env.getProperty("user.url")
                 + "; username: " + env.getProperty("user.username")

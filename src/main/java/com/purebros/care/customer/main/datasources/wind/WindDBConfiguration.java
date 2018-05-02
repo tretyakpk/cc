@@ -1,5 +1,8 @@
 package com.purebros.care.customer.main.datasources.wind;
 
+import com.purebros.care.customer.main.component.CustomAuthenticationProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -21,6 +24,8 @@ import javax.sql.DataSource;
         transactionManagerRef = "windTransactionManager"
 )
 public class WindDBConfiguration {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
     private final Environment env;
 
@@ -49,7 +54,7 @@ public class WindDBConfiguration {
     @ConfigurationProperties(prefix = "wind")
     public DataSource windDataSource() {
 
-        System.out.println("<<<<<< Connection to wind database >>>>>> "
+        logger.info("<<<<<< Connection to wind database >>>>>> "
                 + "class: " + env.getProperty("wind.driver-class-name")
                 + "; url: " + env.getProperty("wind.url")
                 + "; username: " + env.getProperty("wind.username")
