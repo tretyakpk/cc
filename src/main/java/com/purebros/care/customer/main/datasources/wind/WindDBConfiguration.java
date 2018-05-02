@@ -7,14 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(
@@ -24,8 +22,12 @@ import java.util.Properties;
 )
 public class WindDBConfiguration {
 
+    private final Environment env;
+
     @Autowired
-    private Environment env;
+    public WindDBConfiguration(Environment env) {
+        this.env = env;
+    }
 
     @Bean
     public LocalContainerEntityManagerFactoryBean windEntityManager() {
@@ -54,12 +56,11 @@ public class WindDBConfiguration {
                 + "; password: " + env.getProperty("wind.password")
         );
 
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getProperty("wind.driver-class-name"));
-        dataSource.setUrl(     env.getProperty("wind.url"));
-        dataSource.setUsername(env.getProperty("wind.username"));
-        dataSource.setPassword(env.getProperty("wind.password"));
-
-        return dataSource;
+        return DataSourceBuilder.create()
+                .username(env.getProperty("wind.username"))
+                .password(env.getProperty("wind.password"))
+                .driverClassName(env.getProperty("wind.driver-class-name"))
+                .url(env.getProperty("wind.url"))
+                .build();
     }
 }

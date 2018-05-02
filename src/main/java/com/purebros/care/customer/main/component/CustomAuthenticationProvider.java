@@ -2,6 +2,8 @@ package com.purebros.care.customer.main.component;
 
 import com.purebros.care.customer.main.datasources.user.dto.CustomUserDetails;
 import com.purebros.care.customer.main.service.CustomUserDetailsServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +18,8 @@ import java.util.Set;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
     private final CustomUserDetailsServiceImpl customUserDetailsService;
 
@@ -36,7 +40,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole()));
         });
 
-        System.out.println("successfully login: " + name);
+        logger.info(String.format("User successfully login: %s", name));
 
         return new UsernamePasswordAuthenticationToken(userDetails, password, grantedAuthorities);
     }
