@@ -27,12 +27,12 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService{
     @Override
     public CustomUserDetails loadUserByUsernameAndPasoword(String name, String password) throws UsernameNotFoundException {
 
-        Optional<User> optionalUser = userDao.findUser(name, password);
+        User user = userDao.findUser(name, password);
 
-        if(!optionalUser.isPresent())
+        if(user == null)
             throw new UsernameNotFoundException("Username not found");
 
-        CustomUserDetails userDetails = optionalUser.map(CustomUserDetails::new).get();
+        CustomUserDetails userDetails = new CustomUserDetails(user);
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         userDetails.getRoles().forEach(role -> {

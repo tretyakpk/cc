@@ -59,10 +59,6 @@ public class WindDBConfiguration {
         dataSource.setUrl(     env.getProperty("wind.url"));
         dataSource.setUsername(env.getProperty("wind.username"));
         dataSource.setPassword(env.getProperty("wind.password"));
-        Properties props = new Properties();
-        props.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-
-        dataSource.setConnectionProperties(props);
 
         return dataSource;
     }

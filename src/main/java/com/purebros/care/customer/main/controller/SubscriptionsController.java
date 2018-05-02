@@ -29,17 +29,14 @@ public class SubscriptionsController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public List<SubscriptionsDto> findAllSubscriptions(@NotNull @RequestParam("carrier") String carrier,
-                                                       @NotNull @RequestParam("msisdn") String msisdn){
+                                                       @NotNull @RequestParam("msisdn") String msisdn,
+                                                       Authentication authentication){
+        if(authentication != null) {
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            System.out.println(userDetails.getCsps());
+        } else {
+            System.out.println("user not found!");
+        }
         return carrierService.getAllSubscriptions(carrier, msisdn);
-    }
-
-    @RequestMapping(value = "/secured", method = RequestMethod.GET)
-    public List<SubscriptionsDto> findAllSubscriptionsSecured(Authentication authentication){
-
-        // Get current authenticated user
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        System.out.println(userDetails.getCsps());
-
-        return carrierService.getAllSubscriptions("wind", "1234");
     }
 }

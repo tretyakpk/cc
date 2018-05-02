@@ -16,7 +16,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource({ "classpath:db_user.yml" })
 @EnableJpaRepositories(
         basePackages = "com.purebros.care.customer.main.datasources.user",
         entityManagerFactoryRef = "userEntityManager",
@@ -24,8 +23,12 @@ import javax.sql.DataSource;
 )
 public class UserDBConfiguration {
 
+    private final Environment env;
+
     @Autowired
-    private Environment env;
+    public UserDBConfiguration(Environment env) {
+        this.env = env;
+    }
 
     @Bean
     @Primary
@@ -50,17 +53,17 @@ public class UserDBConfiguration {
     public DataSource userDataSource() {
 
         System.out.println("<<<<<< Connection to user database >>>>>> "
-                + "class: " + env.getProperty("driver-class-name")
-                + "; url: " + env.getProperty("url")
-                + "; username: " + env.getProperty("username")
-                + "; password: " + env.getProperty("password")
+                + "class: " + env.getProperty("user.driver-class-name")
+                + "; url: " + env.getProperty("user.url")
+                + "; username: " + env.getProperty("user.username")
+                + "; password: " + env.getProperty("user.password")
         );
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getProperty("driver-class-name"));
-        dataSource.setUrl(env.getProperty("url"));
-        dataSource.setUsername(env.getProperty("username"));
-        dataSource.setPassword(env.getProperty("password"));
+        dataSource.setDriverClassName(env.getProperty("user.driver-class-name"));
+        dataSource.setUrl(env.getProperty("user.url"));
+        dataSource.setUsername(env.getProperty("user.username"));
+        dataSource.setPassword(env.getProperty("user.password"));
 
         return dataSource;
     }
