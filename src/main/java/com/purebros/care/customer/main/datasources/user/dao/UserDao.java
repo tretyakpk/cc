@@ -40,6 +40,24 @@ public class UserDao {
 
         ArrayList res = (ArrayList) result.get("#result-set-1");
 
+        return getUser(res);
+    }
+
+    public Optional<User> findUserByUsername(String userName, String password){
+
+        StoredProcedure procedure = new GenericStoredProcedure();
+        procedure.setDataSource(userDataSource);
+        procedure.setSql("User_GetDataByUsername");
+        procedure.declareParameter(new SqlParameter("in_UserName", Types.VARCHAR));
+        procedure.declareParameter(new SqlParameter("in_Password", Types.VARCHAR));
+        Map<String, Object> result = procedure.execute(userName, password);
+
+        ArrayList res = (ArrayList) result.get("#result-set-1");
+
+        return getUser(res);
+    }
+
+    private Optional<User> getUser(ArrayList res) {
         if(res.isEmpty()) {
             return Optional.empty();
         } else {
