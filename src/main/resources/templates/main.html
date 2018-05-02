@@ -51,10 +51,10 @@
                             <div class="ibox-content">
                                 <div class="row">
                                     <div class="col-md-4 col-sm-4">
-                                        <input type="text" id="msisdn" class="form-control custom-search-field" placeholder="MSISDN">
+                                        <input id="msisdn-input" class="form-control custom-search-field" type="text"  placeholder="MSISDN">
                                     </div>
                                     <div class="col-md-2 col-sm-2">
-                                        <select class="form-control custom-select-field" id="carrier-select">
+                                        <select id="carrier-select" class="form-control custom-select-field">
                                             <option>VODAFONE</option>
                                             <option>WIND</option>
                                             <option>TIM</option>
@@ -62,10 +62,10 @@
                                         </select>
                                     </div>
                                     <div class="col-md-1 col-sm-2">
-                                        <a class="search btn custom-bg">Search</a>
+                                        <a class="search btn custom-bg" id="find">Search</a>
                                     </div>
                                     <div class="col-md-1 col-sm-2">
-                                        <button class="btn custom-bg">History</button>
+                                        <button class="btn custom-bg" id="history">History</button>
                                     </div>
                                 </div>
                             </div>
@@ -159,9 +159,33 @@
     <script>
         $(document).ready(function() {
 
+            $("#find").click( function () {
+
+                var msisdn = $('#msisdn-input').val();
+                console.log(msisdn);
+
+                var carrier = $('#carrier-select option:selected').val();
+                console.log(carrier);
+
+                $.ajax({
+                    data: {
+                        'msisdn': msisdn,
+                        'carrier': carrier
+                    },
+                    type: "POST",
+                    url: "/subscriptions",
+                    contentType: "application/json",
+                    success: function () {
+                    },
+                    error: function () {
+                    }
+                });
+
+            });
+
             $('.footable').footable();
+
             $('.all-user-data').footable({
-                // "expandFirst": true,
                 "columns": [
                     { "name": "id", "visible": false },
                     { "name": "firstName", "title": "First Name" },
