@@ -1,9 +1,12 @@
 package com.purebros.care.customer.main.controller;
 
 import com.purebros.care.customer.main.datasources.user.dto.CustomUserDetails;
-import com.purebros.care.customer.main.datasources.wind.dto.SubscriptionsDto;
 import com.purebros.care.customer.main.service.CarrierServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +23,8 @@ import java.util.List;
 @RequestMapping(value = "/subscriptions")
 public class SubscriptionsController {
 
+    private final static Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
+
     private final CarrierServiceImpl carrierService;
 
     @Autowired
@@ -28,15 +33,28 @@ public class SubscriptionsController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public List<SubscriptionsDto> findAllSubscriptions(@NotNull @RequestParam("carrier") String carrier,
-                                                       @NotNull @RequestParam("msisdn") String msisdn,
-                                                       Authentication authentication){
+    public ResponseEntity<List> all(@NotNull @RequestParam("carrier") String carrier,
+                                   @NotNull @RequestParam("msisdn") String msisdn,
+                                   Authentication authentication){
+
+        logger.info(carrier);
+        logger.info(msisdn);
+
         if(authentication != null) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            System.out.println(userDetails.getCsps());
+            logger.info("find user: " + userDetails.getUsername());
         } else {
-            System.out.println("user not found!");
+            logger.info("user not found!");
         }
-        return carrierService.getAllSubscriptions(carrier, msisdn);
+
+        try {
+            List allSubs = carrierService.getAllSubscriptions(carrier.toLowerCase(), msisdn);
+            logger.info("Count of subscriptions: " + allSubs.size());
+            return new ResponseEntity<>(allSubs, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.warn("Exception: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 }

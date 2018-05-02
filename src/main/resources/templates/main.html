@@ -69,66 +69,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="ibox-content">
-                                <table class="table table-hover footable table-stripped toggle-arrow-tiny text-center" >
-                                    <thead >
-                                    <tr >
-                                        <th class="text-center" data-sort-ignore="true">Msisdn</th>
-                                        <th class="text-center" data-sort-ignore="true">Carrier</th>
-                                        <th class="text-center">Service</th>
-                                        <th class="text-center">Subscribed From</th>
-                                        <th class="text-center" data-sort-ignore="true">Status</th>
-                                        <th class="text-center" data-sort-ignore="true"></th>
-                                        <th class="text-center" data-sort-ignore="true"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td class="user-info font-bold">33333333333</td>
-                                        <td>wind</td>
-                                        <td>hello.world1</td>
-                                        <td>2018-04-11 06:52</td>
-                                        <td><i class="fa fa-check text-navy"></i></td>
-                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
-                                        <td><a class="btn btn-sm btn-danger custom-buttom-margin">Deactivate</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="user-info-vodafone font-bold">33333333333</td>
-                                        <td>vodafone</td>
-                                        <td>hello.world2</td>
-                                        <td>2018-04-11 06:53</td>
-                                        <td><i class="fa fa-times-circle text-danger"></i></td>
-                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="user-info font-bold">33333333333</td>
-                                        <td>tim</td>
-                                        <td>hello.world3</td>
-                                        <td>2018-04-11 06:44</td>
-                                        <td><i class="fa fa-check text-navy"></i></td>
-                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
-                                        <td><a class="btn btn-sm btn-danger custom-buttom-margin">Deactivate</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="user-info font-bold">33333333333</td>
-                                        <td>h3g</td>
-                                        <td>hello.world4</td>
-                                        <td>2018-04-11 06:23</td>
-                                        <td><i class="fa fa-times-circle text-danger"></i></td>
-                                        <td><a class="btn btn-sm btn-success custom-buttom-margin">Details</a></td>
-                                        <td></td>
-                                    </tr>
-                                    </tbody>
-                                    <tfoot>
-                                    <tr>
-                                        <td colspan="7">
-                                            <ul class="pagination pull-right"></ul>
-                                        </td>
-
-                                    </tr>
-                                    </tfoot>
-                                </table>
+                            <div id="subscriptions" class="ibox-content" >
 
                             </div>
                         </div>
@@ -158,53 +99,71 @@
     <!-- page-level scripts -->
     <script>
         $(document).ready(function() {
+            /**
+             * Function to build main subscription table
+             */
+            function showSubscriptionsTable() {
+                var parentTable = $('#subscriptions');
+                parentTable.find('table').remove();
+                parentTable.append(
+                    '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" >' +
+                        '<thead >' +
+                            '<tr>' +
+                                '<th class="text-center" data-sort-ignore="true">Msisdn</th>' +
+                                '<th class="text-center" data-sort-ignore="true">Carrier</th>' +
+                                '<th class="text-center">CSP</th>' +
+                                '<th class="text-center">Service</th>' +
+                                '<th class="text-center">Subscribed from</th>' +
+                                '<th class="text-center">Subscribed to</th>' +
+                                '<th class="text-center" data-sort-ignore="true">Status</th>' +
+                                '<th class="text-center" data-sort-ignore="true"></th>' +
+                                '<th class="text-center" data-sort-ignore="true"></th>' +
+                            '</tr>' +
+                        '</thead>' +
+                        '<tbody>' +
+                        '</tbody>' +
+                        '<tfoot>' +
+                            '<tr>' +
+                                '<td colspan="9">' +
+                                    '<ul class="pagination pull-right"></ul>' +
+                                '</td>' +
+                            '</tr>' +
+                        '</tfoot>' +
+                    '</table>');
+            }
 
+            /**
+             * find all subscriptions and write data to the table
+             */
             $("#find").click( function () {
-
                 var msisdn = $('#msisdn-input').val();
-                console.log(msisdn);
-
-                var carrier = $('#carrier-select option:selected').val();
-                console.log(carrier);
-
-                $.ajax({
-                    data: {
-                        'msisdn': msisdn,
-                        'carrier': carrier
-                    },
-                    type: "POST",
-                    url: "/subscriptions",
-                    contentType: "application/json",
-                    success: function () {
-                    },
-                    error: function () {
-                    }
-                });
-
-            });
-
-            $('.footable').footable();
-
-            $('.all-user-data').footable({
-                "columns": [
-                    { "name": "id", "visible": false },
-                    { "name": "firstName", "title": "First Name" },
-                    { "name": "lastName", "title": "Last Name" },
-                    { "name": "jobTitle", "title": "Job Title", "breakpoints": "xs" },
-                    { "name": "started", "title": "Started On", "breakpoints": "xs sm" },
-                    { "name": "dob", "title": "Date of Birth", "breakpoints": "all" }
-                ]
-
-            });
-
-            $('.user-info-vodafone').on('click', function (e) {
-                e.preventDefault();
-                $('#vodafone-modal').modal();
-            });
-
-            $('.user-info').on('click', function (e) {
-                e.preventDefault();
-                $('#user-info').modal();
+                var carrier = $('#carrier-select').find('option:selected').val();
+                $.post('/subscriptions', {
+                        "msisdn": msisdn,
+                        "carrier": carrier
+                    }, function (returnedData) {
+                        console.log('Successfully received: ' + returnedData.length + ' subscriptions');
+                        if(returnedData) {
+                            showSubscriptionsTable();
+                            var subscriptionsTable = $('#subscriptions-table');
+                            for(var i = 0; i < returnedData.length; i++){
+                                subscriptionsTable.find('tbody').append('<tr>' +
+                                    '<td>' + msisdn + '</td>' +
+                                    '<td>' + carrier + '</td>' +
+                                    '<td>' + returnedData[i]['providerName'] + '</td>' +
+                                    '<td>' + returnedData[i]['serviceName'] + '</td>' +
+                                    '<td>' + returnedData[i]['subscriptionStart'] + '</td>' +
+                                    '<td>' + returnedData[i]['subscriptionEnd'] + '</td>' +
+                                    '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger"></i>')  + '</td>' +
+                                    '<td>' + '<a class="btn btn-sm btn-success custom-buttom-margin">Details</a>' + '</td>' +
+                                    '<td>' + (returnedData[i]['active'] ? '<a class="btn btn-sm btn-danger custom-buttom-margin">Deactivate</a>' : '') + '</td>' +
+                                    '</tr>');
+                            }
+                        } else {
+                            alert('Not found subscriptions!')
+                        }
+                        subscriptionsTable.footable();
+                    }, 'json');
             });
         });
     </script>
