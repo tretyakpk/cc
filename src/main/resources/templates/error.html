@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pure Bros Customer Care service</title>
+
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/assets/font-awesome/css/font-awesome.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/style.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/custom/custom.css}" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+
+<div th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}" class="middle-box text-center animated fadeInDown">
+    <h1 th:text="${httpStatus}">Status</h1>
+    <h3 th:text="${httpStatus.reasonPhrase}" class="font-bold">Error</h3>
+
+    <div th:if="${(httpStatus.equals(404))}" th:text="Sorry, but the page you are looking for has note been found. Try checking the URL for error, then hit the refresh button on your browser or try found something else in our app." class="error-desc"></div>
+    <div th:if="${(httpStatus.equals(500))}" th:text="The server encountered something unexpected that didn't allow it to complete the request. We apologize." class="error-desc"></div>
+</div>
+
+
+<script th:src="@{/assets/js/jquery-3.1.1.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script>
+</script>
+</body>
+</html>
