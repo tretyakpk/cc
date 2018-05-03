@@ -15,10 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
-
-@Component
 @RestController()
 @RequestMapping(value = "/subscriptions")
 public class SubscriptionsController {
@@ -33,28 +32,29 @@ public class SubscriptionsController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<List> all(@NotNull @RequestParam("carrier") String carrier,
-                                   @NotNull @RequestParam("msisdn") String msisdn,
-                                   Authentication authentication){
+    public List all(@NotNull @RequestParam("carrier") String carrier,
+                    @NotNull @RequestParam("msisdn") String msisdn,
+                    Authentication authentication){
 
-        logger.info(carrier);
-        logger.info(msisdn);
+        List allSubs = carrierService.getAllSubscriptions(carrier.toLowerCase(), msisdn);
+        logger.info("Count of subscriptions: " + allSubs.size());
+        return allSubs;
 
-        if(authentication != null) {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            logger.info("find user: " + userDetails.getUsername());
-        } else {
-            logger.info("user not found!");
-        }
+    }
 
-        try {
-            List allSubs = carrierService.getAllSubscriptions(carrier.toLowerCase(), msisdn);
-            logger.info("Count of subscriptions: " + allSubs.size());
-            return new ResponseEntity<>(allSubs, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.warn("Exception: " + e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @RequestMapping(value = "/details", method = RequestMethod.POST)
+    public List details(@NotNull @RequestParam("carrier") String carrier,
+                        @NotNull @RequestParam("msisdn") String msisdn,
+                        Authentication authentication){
 
+        return new ArrayList();
+    }
+
+    @RequestMapping(value = "/history", method = RequestMethod.POST)
+    public List history(@NotNull @RequestParam("carrier") String carrier,
+                        @NotNull @RequestParam("msisdn") String msisdn,
+                        Authentication authentication){
+
+        return new ArrayList();
     }
 }

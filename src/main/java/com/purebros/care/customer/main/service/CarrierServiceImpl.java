@@ -15,6 +15,7 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Setter @Getter
 @Service
@@ -43,7 +44,7 @@ public class CarrierServiceImpl implements CarrierService {
     }
 
     @Override
-    public List<SubscriptionsDto> getAllSubscriptions(String carrier, String msisdn) {
+    public List getAllSubscriptions(String carrier, String msisdn) {
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(getDataSource(carrier));
 
@@ -66,7 +67,8 @@ public class CarrierServiceImpl implements CarrierService {
             subscriptions.add(sub);
         });
 
-        return subscriptions;
+         subscriptions.sort(Comparator.comparing(SubscriptionsDto::getSubscriptionStart).reversed());
+         return subscriptions;
     }
 
     private DataSource getDataSource(String carrierName) throws RuntimeException{
