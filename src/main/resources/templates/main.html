@@ -12,6 +12,9 @@
     <link th:href="@{/assets/css/animate.css}" rel="stylesheet">
     <link th:href="@{/assets/css/style.css}" rel="stylesheet">
 
+    <!-- sweet alert -->
+    <link th:href="@{/assets/css/plugins/sweetalert/sweetalert.css}" rel="stylesheet">
+
     <!-- custom css -->
     <link th:href="@{/assets/css/custom/custom.css}" rel="stylesheet">
 
@@ -89,6 +92,11 @@
     <!-- mainly scripts -->
     <script th:src="@{/assets/js/jquery-3.1.1.min.js}"></script>
     <script th:src="@{/assets/js/bootstrap.min.js}"></script>
+    <script th:src="@{/assets/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+    <script th:src="@{/assets/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+
+    <!-- sweet alert -->
+    <script th:src="@{/assets/js/plugins/sweetalert/sweetalert.min.js}"></script>
 
     <!-- fooTable -->
     <script th:src="@{/assets/js/plugins/footable/footable.all.min.js}"></script>
@@ -99,7 +107,60 @@
 
     <!-- page-level scripts -->
     <script>
+
+
+
         $(document).ready(function() {
+
+            function addListeners(){
+                $('.deactivate').click( function( e ){
+                    e.preventDefault();
+                    swal ( {
+                        title: "Are you sure?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, deactivate",
+                        cancelButtonText: "No, cancel plz",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                    function ( isConfirm ) {
+                        if ( isConfirm ) {
+                            console.log('Confirm subscription deactivation');
+                            swal ( "OK!", "Successfully deactivated.", "success" );
+
+                            // $.ajax ( {
+                            //     type: "POST",
+                            //     url: "{{ path('actions_delete') }}",
+                            //     data: {
+                            //         id: id
+                            //     },
+                            //     success: function ( result ) {
+                            //         if ( result.status )
+                            //         {
+                            //             box.remove ();
+                            //             swal ( "Deleted!", "Portal has been deleted.", "success" );
+                            //         }
+                            //         else
+                            //         {
+                            //             swal ( "Oops!", result.msg, "error" );
+                            //         }
+                            //     },
+                            //     error: function ( result ) {
+                            //         swal ( "Oops!", "Portal not deleted.", "error" );
+                            //     }
+                            // } );
+
+                        } else {
+                            console.log('Cancel subscription deactivation');
+                            swal ( "Cancelled", "Subscription haven't deactivated.", "error" );
+                        }
+                    })
+                })
+            }
+
+
             /**
              * Function to build main subscription table
              */
@@ -136,7 +197,7 @@
             }
 
             /**
-             * find all subscriptions and write data to the table
+             * Find all subscriptions and write data to the table
              */
             $("#find").click( function () {
                 var msisdn = $('#msisdn-input').val();
@@ -157,15 +218,16 @@
                                     '<td>' + returnedData[i]['serviceName'] + '</td>' +
                                     '<td>' + returnedData[i]['subscriptionStart'] + '</td>' +
                                     '<td>' + (returnedData[i]['subscriptionEnd'] ? returnedData[i]['subscriptionEnd'] : '') + '</td>' +
-                                    '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger"></i>')  + '</td>' +
-                                    '<td>' + (returnedData[i]['active'] ? '<a class="btn btn-sm btn-danger custom-buttom-margin">Deactivate</a>' : '') + '</td>' +
-                                    '<td>' + '<a class="btn btn-sm btn-success custom-buttom-margin">Details</a>' + '</td>' +
+                                    '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger "></i>')  + '</td>' +
+                                    '<td>' + (returnedData[i]['active'] ? '<a class="deactivate btn btn-sm btn-danger custom-buttom-margin">Deactivate</a>' : '') + '</td>' +
+                                    '<td>' + '<a class=" btn btn-sm btn-success custom-buttom-margin">Details</a>' + '</td>' +
                                     '</tr>');
                             }
                         } else {
                             alert('Not found subscriptions!')
                         }
                         subscriptionsTable.footable();
+                        addListeners();
                     }, 'json');
             });
         });
