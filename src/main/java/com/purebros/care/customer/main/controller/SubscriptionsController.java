@@ -1,14 +1,10 @@
 package com.purebros.care.customer.main.controller;
 
-import com.purebros.care.customer.main.datasources.user.dto.CustomUserDetails;
 import com.purebros.care.customer.main.service.CarrierServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;

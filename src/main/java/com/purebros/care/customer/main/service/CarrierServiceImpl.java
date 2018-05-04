@@ -1,10 +1,9 @@
 package com.purebros.care.customer.main.service;
 
-import com.purebros.care.customer.main.datasources.wind.dto.SubscriptionsDto;
+import com.purebros.care.customer.main.dto.SubscriptionsDto;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.datetime.DateFormatter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.GenericStoredProcedure;
@@ -15,45 +14,37 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Setter @Getter
 @Service
 public class CarrierServiceImpl implements CarrierService {
+
+    private static final String ROUTINE_DATA_STORAGE = "#result-set-1";
 
     private static final String WIND = "wind";
     private static final String VODA = "vodafone";
     private static final String TIM  = "tim";
     private static final String H3G  = "h3g";
 
-    private final DataSource windDataSource;
-    private final DataSource vodafoneDataSource;
-    private final DataSource timDataSource;
-    private final DataSource h3gDataSource;
+
+    private final DataSource dataSource;
 
     @Autowired
-    public CarrierServiceImpl(@Qualifier("windDataSource") DataSource windDataSource,
-                              @Qualifier("vodafoneDataSource") DataSource vodaDataSource,
-                              @Qualifier("timDataSource") DataSource timDataSource,
-                              @Qualifier("h3gDataSource") DataSource h3gDataSource
-    ) {
-        this.windDataSource = windDataSource;
-        this.vodafoneDataSource = vodaDataSource;
-        this.timDataSource = timDataSource;
-        this.h3gDataSource = h3gDataSource;
+    public CarrierServiceImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public List getAllSubscriptions(String carrier, String msisdn) {
         StoredProcedure procedure = new GenericStoredProcedure();
-        procedure.setDataSource(getDataSource(carrier));
+        procedure.setDataSource(dataSource);
 
         procedure.setSql("CC_getUserServiceSubscriptions");
         procedure.declareParameter(new SqlParameter("in_msisdn", Types.VARCHAR));
 
         Map<String, Object> result = procedure.execute(msisdn);
 
-        ArrayList res = (ArrayList) result.get("#result-set-1");
+        ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
 
         List<SubscriptionsDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
@@ -69,20 +60,6 @@ public class CarrierServiceImpl implements CarrierService {
 
          subscriptions.sort(Comparator.comparing(SubscriptionsDto::getSubscriptionStart).reversed());
          return subscriptions;
-    }
-
-    private DataSource getDataSource(String carrierName) throws RuntimeException{
-        switch (carrierName){
-            case WIND:
-                return windDataSource;
-            case VODA:
-                return vodafoneDataSource;
-            case TIM:
-                return timDataSource;
-            case H3G:
-                return h3gDataSource;
-            default: throw new RuntimeException("not found dataSource for " + carrierName);
-        }
     }
 
     private Date getDate(String dateString){
