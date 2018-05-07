@@ -5,13 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
 
 import java.util.Date;
 
 @AllArgsConstructor
 @Builder @Setter @Getter
-public class SubscriptionsDto {
+public class SubscriptionsInfDto {
 
     private String account;
 
@@ -20,13 +19,11 @@ public class SubscriptionsDto {
     private String serviceName;
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date   subscriptionStart;
+    private Date operationTime;
 
-    @Nullable
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date   subscriptionEnd;
+    private Integer chargeAmount;
 
-    private boolean active;
+    private String msgText;
 
-    private String unsubscriptionUrl;
+    private String billingStatus;
 }

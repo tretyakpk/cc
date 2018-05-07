@@ -4,7 +4,6 @@ import com.purebros.care.customer.main.service.CarrierServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,36 +27,20 @@ public class SubscriptionsController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public List all(@NotNull @RequestParam("carrier") String carrier,
-                    @NotNull @RequestParam("msisdn") String msisdn){
+    public List all( @NotNull @RequestParam("msisdn") String msisdn){
 
-        List allSubs = carrierService.getAllSubscriptions(carrier.toLowerCase(), msisdn);
+        List allSubs = carrierService.getAllSubscriptions(msisdn, new ArrayList<>());
         logger.info("Count of subscriptions: " + allSubs.size());
         return allSubs;
 
     }
 
-    @RequestMapping(value = "/{carrier}/{msisdn}", method = RequestMethod.GET)
-    public List getAll(@PathVariable("carrier") String carrier,
-                        @PathVariable("msisdn") String msisdn){
+    @RequestMapping(value = "/data", method = RequestMethod.POST)
+    public List allInfo( @NotNull @RequestParam("msisdn") String msisdn){
 
-
-        List allSubs = carrierService.getAllSubscriptions(carrier.toLowerCase(), msisdn);
+        List allSubs = carrierService.getAllSubscriptionsInfo(msisdn, new ArrayList<>());
         logger.info("Count of subscriptions: " + allSubs.size());
         return allSubs;
-    }
 
-    @RequestMapping(value = "/details", method = RequestMethod.POST)
-    public List details(@NotNull @RequestParam("carrier") String carrier,
-                        @NotNull @RequestParam("msisdn") String msisdn){
-
-        return new ArrayList();
-    }
-
-    @RequestMapping(value = "/history", method = RequestMethod.POST)
-    public List history(@NotNull @RequestParam("carrier") String carrier,
-                        @NotNull @RequestParam("msisdn") String msisdn){
-
-        return new ArrayList();
     }
 }
