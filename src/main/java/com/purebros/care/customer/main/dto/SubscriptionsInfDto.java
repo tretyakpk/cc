@@ -26,4 +26,6 @@ public class SubscriptionsInfDto {
     private String msgText;
 
     private String billingStatus;
+
+    private String refundUrl;
 }

@@ -86,7 +86,6 @@ public class CarrierServiceImpl implements CarrierService {
     @Override
     public List getAllSubscriptionsInfo(String msisdn, String csps) {
         StoredProcedure procedure = new GenericStoredProcedure();
-
         procedure.setDataSource(dataSource);
         procedure.setSql("CC_getUserBillings");
         procedure.declareParameter(new SqlParameter("in_msisdn", Types.VARCHAR));
@@ -99,7 +98,7 @@ public class CarrierServiceImpl implements CarrierService {
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
 
         logger.info("fetched information of subscriptions for msisdn " + msisdn + ": " + res.size());
-
+        System.out.println(res);
         List<SubscriptionsInfDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
             SubscriptionsInfDto sub = SubscriptionsInfDto.builder()
@@ -110,6 +109,7 @@ public class CarrierServiceImpl implements CarrierService {
                     .chargeAmount(Integer.parseInt  ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")))
                     .msgText(                  (String) ((LinkedCaseInsensitiveMap) v).get("msg_text"))
                     .billingStatus(            (String) ((LinkedCaseInsensitiveMap) v).get("billing_status"))
+                    .refundUrl(                (String) ((LinkedCaseInsensitiveMap) v).get("refund_URL"))
                     .build();
             subscriptions.add(sub);
         });
