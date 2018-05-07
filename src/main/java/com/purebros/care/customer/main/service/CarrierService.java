@@ -4,8 +4,8 @@ import java.util.List;
 
 public interface CarrierService {
 
-    List getAllSubscriptions(String msisdn, List<String> csps);
+    List getAllSubscriptions(String msisdn, String csps);
 
-    List getAllSubscriptionsInfo(String msisdn, List<String> csps);
+    List getAllSubscriptionsInfo(String msisdn, String csps);
 
 }

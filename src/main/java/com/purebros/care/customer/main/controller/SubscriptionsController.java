@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController()
@@ -26,19 +24,19 @@ public class SubscriptionsController {
         this.carrierService = carrierService;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
-    public List all( @NotNull @RequestParam("msisdn") String msisdn){
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public List all(@RequestParam("msisdn") String msisdn, @RequestParam("csps") String csps){
 
-        List allSubs = carrierService.getAllSubscriptions(msisdn, new ArrayList<>());
+        List allSubs = carrierService.getAllSubscriptions(msisdn, csps);
         logger.info("Count of subscriptions: " + allSubs.size());
         return allSubs;
 
     }
 
-    @RequestMapping(value = "/data", method = RequestMethod.POST)
-    public List allInfo( @NotNull @RequestParam("msisdn") String msisdn){
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    public List allInfo(@RequestParam("msisdn") String msisdn, @RequestParam("csps") String csps){
 
-        List allSubs = carrierService.getAllSubscriptionsInfo(msisdn, new ArrayList<>());
+        List allSubs = carrierService.getAllSubscriptionsInfo(msisdn, csps);
         logger.info("Count of subscriptions: " + allSubs.size());
         return allSubs;
 

@@ -1,6 +1,5 @@
 package com.purebros.care.customer.main.service;
 
-import com.purebros.care.customer.main.controller.SubscriptionsController;
 import com.purebros.care.customer.main.dto.SubscriptionsDto;
 import com.purebros.care.customer.main.dto.SubscriptionsInfDto;
 import lombok.Getter;
@@ -44,7 +43,7 @@ public class CarrierServiceImpl implements CarrierService {
      * @return List[SubscriptionsDto] (sorted by subscription start timestamp desc) || null
      */
     @Override
-    public List getAllSubscriptions(String msisdn, List<String> csps) {
+    public List getAllSubscriptions(String msisdn, String csps) {
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(dataSource);
 
@@ -52,10 +51,8 @@ public class CarrierServiceImpl implements CarrierService {
         procedure.declareParameter(new SqlParameter("in_msisdn", Types.VARCHAR));
         procedure.declareParameter(new SqlParameter("in_providersList", Types.VARCHAR));
 
-        Map<String, Object> result = procedure.execute(msisdn, getCsvString(new ArrayList()));
-
+        Map<String, Object> result = procedure.execute(msisdn, csps);
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
-
         List<SubscriptionsDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
             SubscriptionsDto sub = SubscriptionsDto.builder()
@@ -83,7 +80,7 @@ public class CarrierServiceImpl implements CarrierService {
      * @return List[SubscriptionsDto] (sorted by subscription start timestamp desc) || null
      */
     @Override
-    public List getAllSubscriptionsInfo(String msisdn, List<String> csps) {
+    public List getAllSubscriptionsInfo(String msisdn, String csps) {
         StoredProcedure procedure = new GenericStoredProcedure();
 
         procedure.setDataSource(dataSource);
@@ -91,7 +88,10 @@ public class CarrierServiceImpl implements CarrierService {
         procedure.declareParameter(new SqlParameter("in_msisdn", Types.VARCHAR));
         procedure.declareParameter(new SqlParameter("in_providersList", Types.VARCHAR));
 
-        Map<String, Object> result = procedure.execute(msisdn, getCsvString(new ArrayList()));
+        // add international prefix to stored procedure that requires number with this prefix
+        msisdn = "39" + msisdn;
+
+        Map<String, Object> result = procedure.execute(msisdn, csps);
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
         List<SubscriptionsInfDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
@@ -109,11 +109,6 @@ public class CarrierServiceImpl implements CarrierService {
 
         subscriptions.sort(Comparator.comparing(SubscriptionsInfDto::getOperationTime).reversed());
         return subscriptions;
-    }
-
-    private String getCsvString(List list){
-
-        return "";
     }
 
     private Date getDate(String dateString){
