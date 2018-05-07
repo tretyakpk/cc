@@ -1,6 +1,6 @@
 package com.purebros.care.customer.main.component;
 
-import com.purebros.care.customer.main.datasources.user.dto.CustomUserDetails;
+import com.purebros.care.customer.main.dto.CustomUserDetails;
 import com.purebros.care.customer.main.service.CustomUserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -33,12 +35,14 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String name     = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsernameAndPasoword(name, password);
+        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsernameAndPassword(name, password);
 
-        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         userDetails.getRoles().forEach(role -> {
-            grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole()));
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
         });
+
+        userDetails.setAuthorities(grantedAuthorities);
 
         logger.info(String.format("User successfully login: %s", name));
 
@@ -47,6 +51,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return true;
+        return authentication.equals( UsernamePasswordAuthenticationToken.class);
     }
 }

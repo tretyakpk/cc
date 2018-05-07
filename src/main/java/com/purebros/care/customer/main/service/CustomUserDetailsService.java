@@ -4,5 +4,5 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface CustomUserDetailsService{
-    UserDetails loadUserByUsernameAndPasoword(String userName, String password) throws UsernameNotFoundException;
+    UserDetails loadUserByUsernameAndPassword(String userName, String password) throws UsernameNotFoundException;
 }

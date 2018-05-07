@@ -137,7 +137,7 @@
 			<artifactId>thymeleaf-extras-java8time</artifactId>
 			<version>3.0.0.RELEASE</version>
 		</dependency>
-        <!-- End thymeleaf -->
+		<!-- End thymeleaf -->
 
 		<dependency>
 			<groupId>junit</groupId>

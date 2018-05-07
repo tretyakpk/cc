@@ -1,6 +1,8 @@
 <!DOCTYPE HTML>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,8 +75,20 @@
                                     </div>
                                 </div>
                             </div>
+                            <button th:if="${#request.isUserInRole('GET_USER_SERVICE_SUBSCRIPTIONS')}" class="btn btn-default">
+                                GET_USER_SERVICE_SUBSCRIPTIONS
+                            </button><br>
+                            <button sec:authorize="hasRole('ROLE_GET_USER_BILLINGS')" class="btn btn-default">
+                                GET_USER_BILLINGS
+                            </button><br>
+                            <button sec:authorize="hasRole('SERVICE_UNSUBSCRIPTION')" class="btn btn-default">
+                                SERVICE_UNSUBSCRIPTION
+                            </button><br>
+                            <button sec:authorize="hasRole('VODAFONE_REFUND')" class="btn btn-default">
+                                VODAFONE_REFUND
+                            </button><br>
+                            </div>
                             <div id="subscriptions" class="ibox-content" >
-
                             </div>
                         </div>
                     </div>

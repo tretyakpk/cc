@@ -1,9 +1,12 @@
-package com.purebros.care.customer.main.datasources.user.dao;
+package com.purebros.care.customer.main.service;
 
-import com.purebros.care.customer.main.datasources.user.dto.CSP;
-import com.purebros.care.customer.main.datasources.user.dto.Role;
-import com.purebros.care.customer.main.datasources.user.dto.User;
+import com.purebros.care.customer.main.dto.CSP;
+import com.purebros.care.customer.main.dto.Role;
+import com.purebros.care.customer.main.dto.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.GenericStoredProcedure;
 import org.springframework.jdbc.object.StoredProcedure;
@@ -17,15 +20,20 @@ import java.util.Date;
 import java.util.Map;
 
 @Service
-public class UserDao {
+public class UserServiceImpl implements UserService {
+
+    private final static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private static final String DATA_STORAGE = "#result-set-1";
 
     private final DataSource userDataSource;
 
+    private final Environment env;
+
     @Autowired
-    public UserDao(DataSource userDataSource) {
+    public UserServiceImpl(DataSource userDataSource, Environment env) {
         this.userDataSource = userDataSource;
+        this.env = env;
     }
 
     public User findUser(String userName, String password){
@@ -35,8 +43,9 @@ public class UserDao {
         procedure.declareParameter(new SqlParameter("in_UserName", Types.VARCHAR));
         procedure.declareParameter(new SqlParameter("in_Password", Types.VARCHAR));
         Map<String, Object> result = procedure.execute(userName, password);
-
         ArrayList res = (ArrayList) result.get(DATA_STORAGE);
+
+        logger.info("loaded user: " + result);
 
         return getUser(res);
     }
@@ -55,42 +64,53 @@ public class UserDao {
                     .created_at((Date) userData.get("InsertDate"))
                     .build();
 
-            user.setRoles(this.findUserRole(user.getId()));
-            user.setCsps(this.findUserCsps(user.getId()));
+            user.setRoles(this.getUserRoles(user));
+            //user.setCsps(this.getUserCsps(user));
+
             return user;
         }
     }
 
-    private ArrayList<Role> findUserRole(Integer userId){
+
+    private ArrayList<Role> getUserRoles(User user){
 
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(userDataSource);
-        procedure.setSql("UserFunctions_GetData");
+        procedure.setSql("UserFunctions_GetDataByIdTool");
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
-        Map<String, Object> result = procedure.execute(userId);
+        procedure.declareParameter(new SqlParameter("in_IdTool", Types.INTEGER));
+        Map<String, Object> result = procedure.execute(user.getId(), env.getProperty("tool-id"));
+
+        logger.info("tool-id: " + env.getProperty("tool-id"));
 
         ArrayList res = (ArrayList) result.get(DATA_STORAGE);
+
+        System.out.println(res);
+
         ArrayList<Role> roles = new ArrayList<>();
 
         res.forEach(v -> {
             Role role = Role.builder()
-                    .role((String) ((LinkedCaseInsensitiveMap) v).get("RoleName")
+                    .role((String) ((LinkedCaseInsensitiveMap) v).get("FunctionName")
                             .toString().toUpperCase().replace(' ', '_')
                     )
                     .build();
-            roles.add(role);
+            if(!roles.contains(role))
+                roles.add(role);
         });
+
+        logger.info("loaded roles: " + roles);
 
         return roles;
     }
 
-    private ArrayList<CSP> findUserCsps(Integer userId) {
+    private ArrayList<CSP> getUserCsps(User user) {
 
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(userDataSource);
         procedure.setSql("User_GetAllParameters");
         procedure.declareParameter(new SqlParameter("in_IdUser", Types.INTEGER));
-        Map<String, Object> result = procedure.execute(userId);
+        Map<String, Object> result = procedure.execute(user.getId());
         ArrayList res = (ArrayList) result.get(DATA_STORAGE);
         ArrayList<CSP> csps = new ArrayList<>();
 

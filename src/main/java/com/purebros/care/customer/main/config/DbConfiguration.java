@@ -1,13 +1,13 @@
-package com.purebros.care.customer.main.datasources.wind;
+package com.purebros.care.customer.main.config;
 
 import com.purebros.care.customer.main.component.CustomAuthenticationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -19,53 +19,55 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.purebros.care.customer.main.datasources.wind",
-        entityManagerFactoryRef = "windEntityManager",
-        transactionManagerRef = "windTransactionManager"
+        basePackages = "com.purebros.care.customer.main.dto",
+        entityManagerFactoryRef = "userEntityManager",
+        transactionManagerRef = "userTransactionManager"
 )
-public class WindDbConfiguration {
+public class DbConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
     private final Environment env;
 
     @Autowired
-    public WindDbConfiguration(Environment env) {
+    public DbConfiguration(Environment env) {
         this.env = env;
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean windEntityManager() {
+    @Primary
+    public LocalContainerEntityManagerFactoryBean userEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(windDataSource());
-        em.setPackagesToScan("com.purebros.care.customer.main.datasources.wind");
+        em.setDataSource(userDataSource());
+        em.setPackagesToScan("com.purebros.care.customer.main.datasources.user");
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         return em;
     }
 
     @Bean
-    public JpaTransactionManager windTransactionManager(EntityManagerFactory entityManagerFactory) {
+    @Primary
+    public JpaTransactionManager userTransactionManager(EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory);
         return transactionManager;
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "wind")
-    public DataSource windDataSource() {
+    @Primary
+    public DataSource userDataSource() {
 
-        logger.info("<<<<<< Connection to wind database >>>>>> "
-                + "class: " + env.getProperty("wind.driver-class-name")
-                + "; url: " + env.getProperty("wind.url")
-                + "; username: " + env.getProperty("wind.username")
-                + "; password: " + env.getProperty("wind.password")
+        logger.info("<<<<<< Connection to user database >>>>>> "
+                + "class: " + env.getProperty("user.driver-class-name")
+                + "; url: " + env.getProperty("user.url")
+                + "; username: " + env.getProperty("user.username")
+                + "; password: " + env.getProperty("user.password")
         );
 
         return DataSourceBuilder.create()
-                .username(env.getProperty("wind.username"))
-                .password(env.getProperty("wind.password"))
-                .driverClassName(env.getProperty("wind.driver-class-name"))
-                .url(env.getProperty("wind.url"))
+                .username(env.getProperty("user.username"))
+                .password(env.getProperty("user.password"))
+                .driverClassName(env.getProperty("user.driver-class-name"))
+                .url(env.getProperty("user.url"))
                 .build();
     }
 }

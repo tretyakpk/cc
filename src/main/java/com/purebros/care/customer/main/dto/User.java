@@ -1,4 +1,4 @@
-package com.purebros.care.customer.main.datasources.user.dto;
+package com.purebros.care.customer.main.dto;
 
 import lombok.*;
 

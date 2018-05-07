@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    protected final CustomAuthenticationProvider customAuthenticationProvider;
+    private final CustomAuthenticationProvider customAuthenticationProvider;
 
     @Autowired
     public SecurityConfiguration(CustomAuthenticationProvider customAuthenticationProvider) {
@@ -24,8 +24,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable();
         http.authorizeRequests()
-            .antMatchers("/secured/**").authenticated()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login").defaultSuccessUrl("/", true).permitAll()
                 .and().logout().logoutSuccessUrl("/login");
     }
