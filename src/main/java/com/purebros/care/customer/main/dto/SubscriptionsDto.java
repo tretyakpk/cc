@@ -23,5 +23,4 @@ public class SubscriptionsDto {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date   subscriptionEnd;
     private boolean active;
-
 }
