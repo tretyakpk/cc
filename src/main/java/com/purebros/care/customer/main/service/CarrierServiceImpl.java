@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
 import javax.sql.DataSource;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.*;
 
@@ -53,21 +55,23 @@ public class CarrierServiceImpl implements CarrierService {
 
         Map<String, Object> result = procedure.execute(msisdn, csps);
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
+
+        logger.info("fetched subscriptions for msisdn " + msisdn + ": " + res.size());
+
         List<SubscriptionsDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
             SubscriptionsDto sub = SubscriptionsDto.builder()
                     .account(                  (String) ((LinkedCaseInsensitiveMap) v).get("account"))
                     .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("Service"))
                     .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
-                    .subscriptionStart(getDate((String) ((LinkedCaseInsensitiveMap) v).get("SubscriptionStart")))
-                    .subscriptionEnd(  getDate((String) ((LinkedCaseInsensitiveMap) v).get("SubscriptionEnd")))
-                    .active( (                  (Long) ((LinkedCaseInsensitiveMap) v).get("StateTITSrvSta")) == 0)
+                    .subscriptionStart(         (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionStart"))
+                    .subscriptionEnd(           (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionEnd"))
+                    .active( (                  (Integer) ((LinkedCaseInsensitiveMap) v).get("StateTITSrvSta")) == 0)
                     .unsubscriptionUrl((String) ((LinkedCaseInsensitiveMap) v).get("unsubscription_URL"))
                     .build();
             subscriptions.add(sub);
         });
 
-         subscriptions.sort(Comparator.comparing(SubscriptionsDto::getSubscriptionStart).reversed());
          return subscriptions;
     }
 
@@ -93,30 +97,23 @@ public class CarrierServiceImpl implements CarrierService {
 
         Map<String, Object> result = procedure.execute(msisdn, csps);
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
+
+        logger.info("fetched information of subscriptions for msisdn " + msisdn + ": " + res.size());
+
         List<SubscriptionsInfDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
             SubscriptionsInfDto sub = SubscriptionsInfDto.builder()
                     .account(                  (String) ((LinkedCaseInsensitiveMap) v).get("account"))
                     .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
                     .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("serviceName"))
-                    .operationTime(    getDate((String) ((LinkedCaseInsensitiveMap) v).get("DateTimePostCont")))
-                    .chargeAmount(             ((Long) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")).intValue())
+                    .operationTime(            (Timestamp) ((LinkedCaseInsensitiveMap) v).get("DateTimePostCont"))
+                    .chargeAmount(Integer.parseInt  ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")))
                     .msgText(                  (String) ((LinkedCaseInsensitiveMap) v).get("msg_text"))
                     .billingStatus(            (String) ((LinkedCaseInsensitiveMap) v).get("billing_status"))
                     .build();
             subscriptions.add(sub);
         });
 
-        subscriptions.sort(Comparator.comparing(SubscriptionsInfDto::getOperationTime).reversed());
         return subscriptions;
-    }
-
-    private Date getDate(String dateString){
-        try {
-            return new DateFormatter("yyyy-MM-dd HH:mm:ss").parse(dateString, Locale.ITALY);
-        } catch (Exception e) {
-            logger.warn("Can't parse date: " + dateString);
-            return null;
-        }
     }
 }
