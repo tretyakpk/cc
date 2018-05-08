@@ -70,7 +70,7 @@ public class CarrierServiceImpl implements CarrierService {
 
         Arrays.sort(subscriptionsInfDtos, Comparator.comparing(SubscriptionsInfDto::getOperationTime, Comparator.reverseOrder()));
 
-        logger.info(userDetails.getName() + ": find subscriptions information: " + subscriptionsInfDtos.length + "; carrier: " + carrier + "; msisdn: " + msisdn);
+        logger.info(userDetails.getName() + ": Find subscriptions information: " + subscriptionsInfDtos.length + "; carrier: " + carrier + "; msisdn: " + msisdn);
 
         return subscriptionsInfDtos;
     }

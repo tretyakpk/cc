@@ -2,7 +2,6 @@ package com.purebros.care.customer.main.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import org.springframework.lang.Nullable;
 
 import java.util.Date;
 

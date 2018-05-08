@@ -17,15 +17,14 @@
 
 <div class="middle-box text-center loginscreen animated fadeInDown">
     <div>
-        <h3>Welcome</h3>
-        <p>Pure Bros Customer Care service</p>
-
+        <h1 class="logo-name">CC</h1>
+        <h3>Welcome!<br>PureBros Customer care service</h3>
         <form th:action="@{/login}" method="post">
             <div class="form-group">
                 <input name="username" class="form-control" placeholder="Username">
             </div>
             <div class="form-group">
-                <input name="password" class="form-control" placeholder="Password">
+                <input name="password" th:type="password" class="form-control" placeholder="Password">
             </div>
             <button type="submit" class="btn btn-primary block full-width m-b custom-bg">LOGIN</button>
         </form>
