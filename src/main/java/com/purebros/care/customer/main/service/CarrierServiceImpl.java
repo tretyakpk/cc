@@ -56,7 +56,7 @@ public class CarrierServiceImpl implements CarrierService {
         Map<String, Object> result = procedure.execute(msisdn, csps);
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
 
-        logger.info("--- Fetched subscriptions for msisdn 39" + msisdn + ": " + res.size());
+        logger.info("--- fetched subscriptions for msisdn 39" + msisdn + ": " + res.size());
 
         List<SubscriptionsDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
@@ -97,7 +97,7 @@ public class CarrierServiceImpl implements CarrierService {
         Map<String, Object> result = procedure.execute(msisdn, csps);
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
 
-        logger.info("--- Fetched information of subscriptions for msisdn " + msisdn + ": " + res.size());
+        logger.info("--- fetched information of subscriptions for msisdn " + msisdn + ": " + res.size());
 
         List<SubscriptionsInfDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
