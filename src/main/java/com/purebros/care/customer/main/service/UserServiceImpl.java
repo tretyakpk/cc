@@ -45,8 +45,6 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> result = procedure.execute(userName, password);
         ArrayList res = (ArrayList) result.get(DATA_STORAGE);
 
-        logger.info("loaded user: " + result);
-
         return getUser(res);
     }
 
@@ -81,8 +79,6 @@ public class UserServiceImpl implements UserService {
         procedure.declareParameter(new SqlParameter("in_IdTool", Types.INTEGER));
         Map<String, Object> result = procedure.execute(user.getId(), env.getProperty("tool-id"));
 
-        logger.info("tool-id: " + env.getProperty("tool-id"));
-
         ArrayList res = (ArrayList) result.get(DATA_STORAGE);
 
         ArrayList<Role> roles = new ArrayList<>();
@@ -96,8 +92,6 @@ public class UserServiceImpl implements UserService {
             if(!roles.contains(role))
                 roles.add(role);
         });
-
-        logger.info("loaded roles: " + roles);
 
         return roles;
     }

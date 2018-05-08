@@ -44,7 +44,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         userDetails.setAuthorities(grantedAuthorities);
 
-        logger.info(String.format("User successfully login: %s", name));
+        logger.info("User successfully login: " + name + "; roles: " + userDetails.getRoles() + "; csps: " + userDetails.getCsps());
 
         return new UsernamePasswordAuthenticationToken(userDetails, password, grantedAuthorities);
     }

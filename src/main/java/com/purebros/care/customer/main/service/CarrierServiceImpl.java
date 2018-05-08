@@ -1,6 +1,7 @@
 package com.purebros.care.customer.main.service;
 
 import com.purebros.care.customer.main.dto.CSP;
+import com.purebros.care.customer.main.dto.CustomUserDetails;
 import com.purebros.care.customer.main.dto.SubscriptionsDto;
 import com.purebros.care.customer.main.dto.SubscriptionsInfDto;
 import lombok.Getter;
@@ -31,12 +32,12 @@ public class CarrierServiceImpl implements CarrierService {
     }
 
     @Override
-    public SubscriptionsDto[] getAllSubscriptions(String msisdn, String carrier, ArrayList<CSP> csps) {
+    public SubscriptionsDto[] getAllSubscriptions(String msisdn, String carrier, CustomUserDetails userDetails) {
 
         String url = env.getProperty("servlet" + "." + carrier.toLowerCase()) + "/subscriptions";
 
         StringBuilder cspsCsv = new StringBuilder();
-        if(csps != null) csps.forEach(csp -> cspsCsv.append(csp.getId()).append(","));
+        if(userDetails.getCsps() != null) userDetails.getCsps().forEach(csp -> cspsCsv.append(csp.getId()).append(","));
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("msisdn", msisdn)
@@ -47,18 +48,18 @@ public class CarrierServiceImpl implements CarrierService {
 
         Arrays.sort(subscriptionsDtos, Comparator.comparing(SubscriptionsDto::getSubscriptionStart, Comparator.reverseOrder()));
 
-        logger.info("--- Find subscriptions: " + subscriptionsDtos.length + " (" + msisdn + ")");
+        logger.info(userDetails.getName() + ": find subscriptions: " + subscriptionsDtos.length + "; carrier: " + carrier + "; msisdn: " + msisdn);
 
         return subscriptionsDtos;
     }
 
     @Override
-    public SubscriptionsInfDto[] getAllSubscriptionsInfo(String msisdn, String carrier, ArrayList<CSP> csps) {
+    public SubscriptionsInfDto[] getAllSubscriptionsInfo(String msisdn, String carrier, CustomUserDetails userDetails) {
 
         String url = env.getProperty("servlet" + "." + carrier.toLowerCase()) + "/subscriptions/info";
 
         StringBuilder cspsCsv = new StringBuilder();
-        if(csps != null) csps.forEach(csp -> cspsCsv.append(csp.getId()).append(","));
+        if(userDetails.getCsps() != null) userDetails.getCsps().forEach(csp -> cspsCsv.append(csp.getId()).append(","));
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("msisdn", msisdn)
@@ -69,7 +70,7 @@ public class CarrierServiceImpl implements CarrierService {
 
         Arrays.sort(subscriptionsInfDtos, Comparator.comparing(SubscriptionsInfDto::getOperationTime, Comparator.reverseOrder()));
 
-        logger.info("--- Find subscriptions information: " + subscriptionsInfDtos.length + " (" + msisdn + ")");
+        logger.info(userDetails.getName() + ": find subscriptions information: " + subscriptionsInfDtos.length + "; carrier: " + carrier + "; msisdn: " + msisdn);
 
         return subscriptionsInfDtos;
     }

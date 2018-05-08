@@ -41,7 +41,7 @@ public class SubscriptionsController {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        return carrierService.getAllSubscriptions(msisdn, carrier, userDetails.getCsps());
+        return carrierService.getAllSubscriptions(msisdn, carrier, userDetails);
 
     }
 
@@ -56,6 +56,7 @@ public class SubscriptionsController {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        return carrierService.getAllSubscriptionsInfo(msisdn, carrier, userDetails.getCsps());
+        return carrierService.getAllSubscriptionsInfo(msisdn, carrier, userDetails
+        );
     }
 }
