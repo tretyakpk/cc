@@ -85,8 +85,6 @@ public class UserServiceImpl implements UserService {
 
         ArrayList res = (ArrayList) result.get(DATA_STORAGE);
 
-        System.out.println(res);
-
         ArrayList<Role> roles = new ArrayList<>();
 
         res.forEach(v -> {

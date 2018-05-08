@@ -1,15 +1,14 @@
 package com.purebros.care.customer.main.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder @Setter @Getter
+@ToString
 public class SubscriptionsInfDto {
 
     private String account;
@@ -26,4 +25,6 @@ public class SubscriptionsInfDto {
     private String msgText;
 
     private String billingStatus;
+
+    private String refundUrl;
 }

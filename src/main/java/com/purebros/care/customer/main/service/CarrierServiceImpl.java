@@ -1,17 +1,27 @@
 package com.purebros.care.customer.main.service;
 
+import com.purebros.care.customer.main.dto.CSP;
+import com.purebros.care.customer.main.dto.SubscriptionsDto;
+import com.purebros.care.customer.main.dto.SubscriptionsInfDto;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 @Setter @Getter
 @Service
 public class CarrierServiceImpl implements CarrierService {
 
+    private final static Logger logger = LoggerFactory.getLogger(CarrierServiceImpl.class);
 
     private final Environment env;
 
@@ -21,8 +31,46 @@ public class CarrierServiceImpl implements CarrierService {
     }
 
     @Override
-    public List getAllSubscriptions(String carrier, String msisdn) {
+    public SubscriptionsDto[] getAllSubscriptions(String msisdn, String carrier, ArrayList<CSP> csps) {
 
-         return null;
+        String url = env.getProperty("servlet" + "." + carrier.toLowerCase()) + "/subscriptions";
+
+        StringBuilder cspsCsv = new StringBuilder();
+        if(csps != null) csps.forEach(csp -> cspsCsv.append(csp.getId()).append(","));
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("msisdn", msisdn)
+                .queryParam("csps", cspsCsv);
+
+        RestTemplate restTemplate = new RestTemplate();
+        SubscriptionsDto[] subscriptionsDtos = restTemplate.getForObject(builder.toUriString(), SubscriptionsDto[].class);
+
+        Arrays.sort(subscriptionsDtos, Comparator.comparing(SubscriptionsDto::getSubscriptionStart, Comparator.reverseOrder()));
+
+        logger.info("--- Find subscriptions: " + subscriptionsDtos.length + " (" + msisdn + ")");
+
+        return subscriptionsDtos;
+    }
+
+    @Override
+    public SubscriptionsInfDto[] getAllSubscriptionsInfo(String msisdn, String carrier, ArrayList<CSP> csps) {
+
+        String url = env.getProperty("servlet" + "." + carrier.toLowerCase()) + "/subscriptions/info";
+
+        StringBuilder cspsCsv = new StringBuilder();
+        if(csps != null) csps.forEach(csp -> cspsCsv.append(csp.getId()).append(","));
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("msisdn", msisdn)
+                .queryParam("csps", cspsCsv);
+
+        RestTemplate restTemplate = new RestTemplate();
+        SubscriptionsInfDto[] subscriptionsInfDtos = restTemplate.getForObject(builder.toUriString(), SubscriptionsInfDto[].class);
+
+        Arrays.sort(subscriptionsInfDtos, Comparator.comparing(SubscriptionsInfDto::getOperationTime, Comparator.reverseOrder()));
+
+        logger.info("--- Find subscriptions information: " + subscriptionsInfDtos.length + " (" + msisdn + ")");
+
+        return subscriptionsInfDtos;
     }
 }
