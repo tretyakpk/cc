@@ -98,7 +98,7 @@ public class CarrierServiceImpl implements CarrierService {
         ArrayList res = (ArrayList) result.get(ROUTINE_DATA_STORAGE);
 
         logger.info("fetched information of subscriptions for msisdn " + msisdn + ": " + res.size());
-        System.out.println(res);
+
         List<SubscriptionsInfDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
             SubscriptionsInfDto sub = SubscriptionsInfDto.builder()
