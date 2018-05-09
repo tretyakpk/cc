@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
                     .build();
 
             user.setRoles(this.getUserRoles(user));
-            //user.setCsps(this.getUserCsps(user));
+            user.setCsps(this.getUserCsps(user));
 
             return user;
         }
@@ -107,10 +107,12 @@ public class UserServiceImpl implements UserService {
         ArrayList<CSP> csps = new ArrayList<>();
 
         res.forEach(v -> {
-            CSP csp = CSP.builder()
-                    .id(Integer.parseInt(((LinkedCaseInsensitiveMap) v).get("Value").toString()))
-                    .build();
-            csps.add(csp);
+            if(((LinkedCaseInsensitiveMap) v).get("Value").toString().equals("csp.id")) {
+                CSP csp = CSP.builder()
+                        .id(Integer.parseInt(((LinkedCaseInsensitiveMap) v).get("Value").toString()))
+                        .build();
+                csps.add(csp);
+            }
         });
 
         return csps;
