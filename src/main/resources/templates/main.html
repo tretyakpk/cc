@@ -209,6 +209,69 @@
                             console.log('Cancel subscription deactivation');
                         }
                     })
+            });
+            $('.subscription-refund').click( function( e ){
+                e.preventDefault();
+                var refundLink = this.getAttribute("value");
+                swal ( {
+                        title: "Are you sure?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#f45a54",
+                        cancelButtonColor: "#6e6e70",
+                        confirmButtonText: "Yes, refund",
+                        cancelButtonText: "No, cancel plz",
+                        closeOnConfirm: false,
+                        closeOnCancel: true,
+                        allowOutsideClick: true
+                    },
+                    function ( isConfirm ) {
+                        if ( isConfirm ) {
+                            console.log('Confirm billing refund');
+                            swal({
+                                title: "Processing...",
+                                text: "Please wait",
+                                imageUrl: "/assets/img/processing.gif",
+                                showConfirmButton: false,
+                                allowOutsideClick: true
+                            });
+                            $.ajax ( {
+                                type: "POST",
+                                url: "/subscriptions/refund",
+                                data: {
+                                    link: refundLink
+                                },
+                                success: function ( result ) {
+                                    console.log(result);
+                                    swal ( {
+                                        title: "OK!",
+                                        text: result,
+                                        type: "success",
+                                        confirmButtonColor: "#3e9c76",
+                                        confirmButtonText: "OK",
+                                        closeOnConfirm: true,
+                                        closeOnCancel: true,
+                                        allowOutsideClick: true
+                                    });
+                                    // TODO: set deactivation timestamp and status not active and disabled true
+                                },
+                                error: function () {
+                                    swal ( {
+                                        title: "Oops...",
+                                        text: "Subscription has not been successfully deactivated!",
+                                        type: "error",
+                                        confirmButtonColor: "#3e9c76",
+                                        confirmButtonText: "OK",
+                                        closeOnConfirm: true,
+                                        closeOnCancel: true,
+                                        allowOutsideClick: true
+                                    });
+                                }
+                            } );
+                        } else {
+                            console.log('Cancel subscription deactivation');
+                        }
+                    })
             })
         }
     </script>
@@ -223,7 +286,7 @@
                 parentTable.append(
                     '<h3 id="subscriptions-table-head"></h3>'+
                     '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-filter" placeholder="Search in table">' +
-                    '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="5" data-filter=#subscriptions-filter >' +
+                    '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="10" data-filter=#subscriptions-filter >' +
                         '<thead >' +
                             '<tr>' +
                                 '<th class="text-center">ACCOUNT</th>' +
@@ -280,9 +343,6 @@
                     '</table>');
             }
 
-            /**
-             * Find all subscriptions and write data to the table
-             */
             $("#find-subscriptions").click( function () {
                 var msisdn  = $('#msisdn-input').val();
                 var carrier = $('#carrier-select').find('option:selected').val();
@@ -379,9 +439,11 @@
                         });
                         showSubscriptionsInfoTable();
                         $('#subscriptions-info-table-head').text("Found " + returnedData.length + " entry for msisdn: " + msisdn + " (" + carrier + ")");
-                        var subscriptionsTable = $('#subscriptions-info-table');
+                        var subscriptionInfoTable = $('#subscriptions-info-table');
+                        var subscriptionStats = [];
                         for(var i = 0; i < returnedData.length; i++){
-                            subscriptionsTable.find('tbody').append('<tr>' +
+
+                            subscriptionInfoTable.find('tbody').append('<tr>' +
                                 '<td>' + returnedData[i]['account'] + '</td>' +
                                 '<td>' + returnedData[i]['providerName'] + '</td>' +
                                 '<td>' + returnedData[i]['serviceName'] + '</td>' +
@@ -389,10 +451,10 @@
                                 '<td>' + (returnedData[i]['msgText'] ? returnedData[i]['msgText'] : returnedData[i]['chargeAmount']) + '</td>' +
                                 '<td>' + returnedData[i]['operationTime'] + '</td>' +
                                 '<td>' + (returnedData[i]['billingStatus'] === 'OK' ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger ">') + '</td>' +
-                                '<td>' + (returnedData[i]['refundUrl'] ? '<button value="' + returnedData[i]['refundUrl'] +'" class="subscription-deactivate btn btn-sm btn-warning custom-buttom-margin">Refund</button>' : '') + '</td>' +
+                                '<td>' + (returnedData[i]['refundUrl'] ? '<button value="' + returnedData[i]['refundUrl'] +'" class="subscription-refund btn btn-sm btn-warning custom-buttom-margin">Refund</button>' : '') + '</td>' +
                                 '</tr>');
                         }
-                        subscriptionsTable.footable();
+                        subscriptionInfoTable.footable();
                         addListeners();
                     } else if(returnedData && returnedData.length === 0) {
                         swal ( {
