@@ -99,19 +99,25 @@ public class CarrierServiceImpl implements CarrierService {
 
         logger.info("--- fetched information of subscriptions for msisdn " + msisdn + ": " + res.size());
 
+        res.forEach(v -> System.out.println( ((LinkedCaseInsensitiveMap) v).get("chargeAmount")));
+
         List<SubscriptionsInfDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
-            SubscriptionsInfDto sub = SubscriptionsInfDto.builder()
+            SubscriptionsInfDto.SubscriptionsInfDtoBuilder builder = SubscriptionsInfDto.builder()
                     .account(                  (String) ((LinkedCaseInsensitiveMap) v).get("account"))
                     .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
                     .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("serviceName"))
                     .operationTime(            (Timestamp) ((LinkedCaseInsensitiveMap) v).get("DateTimePostCont"))
-                    .chargeAmount(Float.parseFloat ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")))
+
                     .msgText(                  (String) ((LinkedCaseInsensitiveMap) v).get("msg_text"))
                     .billingStatus(            (String) ((LinkedCaseInsensitiveMap) v).get("billing_status"))
-                    .refundUrl(                (String) ((LinkedCaseInsensitiveMap) v).get("refund_URL"))
-                    .build();
-            subscriptions.add(sub);
+                    .refundUrl(                (String) ((LinkedCaseInsensitiveMap) v).get("refund_URL"));
+            if(((LinkedCaseInsensitiveMap) v).get("chargeAmount") != null)
+                builder.chargeAmount(Float.parseFloat ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")));
+            else
+                builder.chargeAmount(null);
+
+            subscriptions.add(builder.build());
         });
 
         return subscriptions;
