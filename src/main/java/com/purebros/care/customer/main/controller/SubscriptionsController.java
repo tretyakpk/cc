@@ -4,6 +4,7 @@ import com.purebros.care.customer.main.dto.CustomUserDetails;
 import com.purebros.care.customer.main.dto.SubscriptionsDto;
 import com.purebros.care.customer.main.dto.SubscriptionsInfDto;
 import com.purebros.care.customer.main.service.CarrierServiceImpl;
+import com.purebros.care.customer.main.service.RefundServiceImpl;
 import com.purebros.care.customer.main.service.UnsubscriptionServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,40 +31,41 @@ public class SubscriptionsController {
 
     private final UnsubscriptionServiceImpl unsubscriptionService;
 
+    private final RefundServiceImpl refundService;
+
 
     @Autowired
-    public SubscriptionsController(CarrierServiceImpl carrierService, UnsubscriptionServiceImpl unsubscriptionService) {
+    public SubscriptionsController(CarrierServiceImpl carrierService, UnsubscriptionServiceImpl unsubscriptionService, RefundServiceImpl refundService) {
         this.carrierService = carrierService;
         this.unsubscriptionService = unsubscriptionService;
+        this.refundService = refundService;
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_GET_USER_SERVICE_SUBSCRIPTIONS'," +
-            "'ROLE_SERVICE_UNSUBSCRIPTION')")
+    @PreAuthorize("hasAnyRole('GET_USER_SERVICE_SUBSCRIPTIONS', 'SERVICE_UNSUBSCRIPTION')")
     @RequestMapping(value = "", method = RequestMethod.POST)
     public SubscriptionsDto[] all(@NotNull @RequestParam("carrier") String carrier,
                                   @NotNull @RequestParam("msisdn") String msisdn,
                                   Authentication authentication){
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        SubscriptionsDto[]  allSubs = carrierService.getAllSubscriptions(msisdn, carrier, userDetails);
+        SubscriptionsDto[] allSubs = carrierService.getAllSubscriptions(msisdn, carrier, userDetails);
+
         if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SERVICE_UNSUBSCRIPTION")))
-            Arrays.stream(allSubs).forEach(sub -> {
-                sub.setUnsubscriptionUrl(null);
-            });
+            Arrays.stream(allSubs).forEach(sub -> sub.setUnsubscriptionUrl(null));
         return allSubs;
     }
 
-    @PreAuthorize("hasRole('ROLE_SERVICE_UNSUBSCRIPTION')")
+    @PreAuthorize("hasAuthority('ROLE_SERVICE_UNSUBSCRIPTION')")
     @RequestMapping(value = "/deactivate", method = RequestMethod.POST)
     public String info(@NotNull @RequestParam("link") String link,
                        Authentication authentication){
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String result = unsubscriptionService.deactivate(link);
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         logger.info(userDetails.getUsername() + ": deactivation action: result: " + result + " link: " + link);
         return result;
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_GET_USER_BILLINGS', " +
-            "'VODAFONE_REFUND')")
+    @PreAuthorize("hasAnyRole('ROLE_GET_USER_BILLINGS', 'ROLE_VODAFONE_REFUND')")
     @RequestMapping(value = "/info", method = RequestMethod.POST)
     public SubscriptionsInfDto[] deactivate(@NotNull @RequestParam("carrier") String carrier,
                                             @NotNull @RequestParam("msisdn") String msisdn,
@@ -74,6 +76,17 @@ public class SubscriptionsController {
             Arrays.stream(allInfo).forEach(sub -> {
                 sub.setRefundUrl(null);
             });
+
         return allInfo;
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_SERVICE_UNSUBSCRIPTION')")
+    @RequestMapping(value = "/refund", method = RequestMethod.POST)
+    public String refund(@NotNull @RequestParam("link") String link,
+                       Authentication authentication){
+        String result = refundService.refund(link);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        logger.info(userDetails.getUsername() + ": deactivation action: result: " + result + " link: " + link);
+        return result;
     }
 }

@@ -1,6 +1,5 @@
 package com.purebros.care.customer.main.service;
 
-import com.purebros.care.customer.main.dto.CSP;
 import com.purebros.care.customer.main.dto.CustomUserDetails;
 import com.purebros.care.customer.main.dto.SubscriptionsDto;
 import com.purebros.care.customer.main.dto.SubscriptionsInfDto;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 

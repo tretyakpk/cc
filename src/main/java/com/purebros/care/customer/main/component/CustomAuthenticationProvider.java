@@ -42,6 +42,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
         });
 
+//        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + "GET_USER_SERVICE_SUBSCRIPTIONS"));
+//        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + "SERVICE_UNSUBSCRIPTION"));
+//        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + "GET_USER_BILLINGS"));
+//        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + "VODAFONE_REFUND"));
+
         userDetails.setAuthorities(grantedAuthorities);
 
         logger.info("User successfully login: " + name + "; roles: " + userDetails.getRoles() + "; csps: " + userDetails.getCsps());

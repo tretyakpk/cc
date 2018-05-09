@@ -57,25 +57,63 @@
                             <div class="ibox-content">
                                 <div class="row">
                                     <div class="col-md-4 col-sm-4">
-                                        <input id="msisdn-input" class="form-control custom-search-field" type="text"  placeholder="MSISDN">
+                                        <label for="msisdn-input">Type msisdn without international prefix</label>
+                                        <input title="Type msisdn without international prefix" id="msisdn-input" class="form-control custom-search-field" type="text"  placeholder="MSISDN">
                                     </div>
                                     <div class="col-md-2 col-sm-2">
-                                        <select id="carrier-select" class="form-control custom-select-field">
-                                            <option th:value="voda">VODAFONE</option>
-                                            <option th:value="wind">WIND</option>
-                                            <option th:value="tim">TIM</option>
-                                            <option th:value="h3g">H3G</option>
-                                        </select>
+                                        <label for="carrier-select">Choose carrier</label>
+
+                                            <select title="Choose carrier" id="carrier-select"
+                                                    class="form-control custom-select-field">
+                                                <option th:value="voda">VODAFONE</option>
+                                                <option th:value="wind">WIND</option>
+                                                <option th:value="tim">TIM</option>
+                                                <option th:value="h3g">H3G</option>
+                                            </select>
                                     </div>
-                                    <div class="col-md-1 col-sm-2">
-                                        <a class="search btn custom-bg" id="find-subscriptions">Search</a>
+                                    <div sec:authorize="hasAnyRole('GET_USER_SERVICE_SUBSCRIPTIONS','SERVICE_UNSUBSCRIPTION')" class="col-md-1 col-sm-2">
+                                        <label for="find-subscriptions"><br></label>
+                                        <a title="Find subs"  class="search btn custom-bg" id="find-subscriptions">Search</a>
                                     </div>
-                                    <div class="col-md-1 col-sm-2">
-                                        <button class="btn custom-bg" id="history">History</button>
+                                    <div sec:authorize="hasAnyRole('ROLE_GET_USER_BILLINGS','ROLE_VODAFONE_REFUND')" class="col-md-1 col-sm-2">
+                                        <label for="history"><br></label>
+                                        <button title="Find data"  class="btn custom-bg" id="history">History</button>
                                     </div>
                                 </div>
                             </div>
-                            <div id="subscriptions" class="ibox-content" >
+                        </div>
+                        <div sec:authorize="hasAnyRole('GET_USER_SERVICE_SUBSCRIPTIONS','SERVICE_UNSUBSCRIPTION')" class="row">
+                            <div class="col-lg-12">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title">
+                                        <h5>Customer subscriptions table</h5>
+                                        <div class="ibox-tools">
+                                            <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div id="subscriptions" class="ibox-content" >
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div sec:authorize="hasAnyRole('ROLE_GET_USER_BILLINGS','ROLE_VODAFONE_REFUND')" class="row">
+                            <div class="col-lg-12">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title">
+                                        <h5>Customer info table</h5>
+                                        <div class="ibox-tools">
+                                            <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div id="subscriptions-info" class="ibox-content" >
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -108,25 +146,86 @@
 
     <!-- page-level scripts -->
     <script>
+        function addListeners(){
+            $('.subscription-deactivate').click( function( e ){
+                e.preventDefault();
+                var deactivationLink = this.getAttribute("value");
+                swal ( {
+                        title: "Are you sure?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#f45a54",
+                        cancelButtonColor: "#6e6e70",
+                        confirmButtonText: "Yes, deactivate",
+                        cancelButtonText: "No, cancel plz",
+                        closeOnConfirm: false,
+                        closeOnCancel: true,
+                        allowOutsideClick: true
+                    },
+                    function ( isConfirm ) {
+                        if ( isConfirm ) {
+                            console.log('Confirm subscription deactivation');
+                            swal({
+                                title: "Processing...",
+                                text: "Please wait",
+                                imageUrl: "/assets/img/processing.gif",
+                                showConfirmButton: false,
+                                allowOutsideClick: true
+                            });
+                            $.ajax ( {
+                                type: "POST",
+                                url: "/subscriptions/deactivate",
+                                data: {
+                                    link: deactivationLink
+                                },
+                                success: function ( result ) {
+                                    console.log(result);
+                                    swal ( {
+                                        title: "OK!",
+                                        text: result,
+                                        type: "success",
+                                        confirmButtonColor: "#3e9c76",
+                                        confirmButtonText: "OK",
+                                        closeOnConfirm: true,
+                                        closeOnCancel: true,
+                                        allowOutsideClick: true
+                                    });
+                                    // TODO: set deactivation timestamp and status not active and disabled true
+                                },
+                                error: function () {
+                                    swal ( {
+                                        title: "Oops...",
+                                        text: "Subscription has not been successfully deactivated!",
+                                        type: "error",
+                                        confirmButtonColor: "#3e9c76",
+                                        confirmButtonText: "OK",
+                                        closeOnConfirm: true,
+                                        closeOnCancel: true,
+                                        allowOutsideClick: true
+                                    });
+                                }
+                            } );
+                        } else {
+                            console.log('Cancel subscription deactivation');
+                        }
+                    })
+            })
+        }
+    </script>
 
+    <script>
         $(document).ready(function() {
-
-
-
-            /**
-             * Function to build main subscription table
-             */
             function showSubscriptionsTable() {
                 var parentTable = $('#subscriptions');
                 parentTable.find('#subscriptions-filter').remove();
+                parentTable.find('#subscriptions-table-head').remove();
                 parentTable.find('table').remove();
                 parentTable.append(
+                    '<h3 id="subscriptions-table-head"></h3>'+
                     '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-filter" placeholder="Search in table">' +
                     '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="5" data-filter=#subscriptions-filter >' +
                         '<thead >' +
                             '<tr>' +
-                                '<th class="text-center" data-sort-ignore="true">MSISDN</th>' +
-                                '<th class="text-center" data-sort-ignore="true">CARRIER</th>' +
                                 '<th class="text-center">ACCOUNT</th>' +
                                 '<th class="text-center">CSP</th>' +
                                 '<th class="text-center">SERVICE</th>' +
@@ -149,6 +248,38 @@
                     '</table>');
             }
 
+            function showSubscriptionsInfoTable() {
+                var parentTable = $('#subscriptions-info');
+                parentTable.find('#subscriptions-info-filter').remove();
+                parentTable.find('table').remove();
+                parentTable.append(
+                    '<h3 id="subscriptions-info-table-head"></h3>'+
+                    '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-info-filter" placeholder="Search in table">' +
+                    '<table id="subscriptions-info-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="10" data-filter=#subscriptions-info-filter >' +
+                        '<thead >' +
+                            '<tr>' +
+                                '<th class="text-center">ACCOUNT</th>' +
+                                '<th class="text-center">CSP</th>' +
+                                '<th class="text-center">SERVICE</th>' +
+                                '<th class="text-center" data-sort-ignore="true">TYPE</th>' +
+                                '<th class="text-center" data-sort-ignore="true">BILL/MSG</th>' +
+                                '<th class="text-center">OPERATION TIME</th>' +
+                                '<th class="text-center" data-sort-ignore="true">STATUS</th>' +
+                                '<th class="text-center" data-sort-ignore="true"></th>' +
+                            '</tr>' +
+                        '</thead>' +
+                        '<tbody>' +
+                        '</tbody>' +
+                        '<tfoot>' +
+                            '<tr>' +
+                                '<td colspan="10">' +
+                                    '<ul class="pagination pull-right"></ul>' +
+                                '</td>' +
+                            '</tr>' +
+                        '</tfoot>' +
+                    '</table>');
+            }
+
             /**
              * Find all subscriptions and write data to the table
              */
@@ -160,7 +291,7 @@
                     text: "Please wait",
                     imageUrl: "/assets/img/processing.gif",
                     showConfirmButton: false,
-                    allowOutsideClick: false
+                    allowOutsideClick: true
                 });
                 $.post('/subscriptions', {
                         "msisdn": msisdn,
@@ -170,7 +301,7 @@
                         if(returnedData && returnedData.length !== 0) {
                             swal ( {
                                 title: "OK!",
-                                text: "Successfully found: " + returnedData.length + " subscriptions",
+                                text: "Successfully found " + returnedData.length + " subscriptions",
                                 type: "success",
                                 confirmButtonColor: "#3e9c76",
                                 confirmButtonText: "OK",
@@ -180,123 +311,115 @@
                             });
                             showSubscriptionsTable();
                             var subscriptionsTable = $('#subscriptions-table');
+                            $('#subscriptions-table-head').text("Found " + returnedData.length + " subscriptions for msisdn: " + msisdn + " (" + carrier + ")");
                             for(var i = 0; i < returnedData.length; i++){
                                 subscriptionsTable.find('tbody').append('<tr>' +
-                                    '<td>' + msisdn + '</td>' +
-                                    '<td>' + carrier + '</td>' +
                                     '<td>' + returnedData[i]['account'] + '</td>' +
                                     '<td>' + returnedData[i]['providerName'] + '</td>' +
                                     '<td>' + returnedData[i]['serviceName'] + '</td>' +
                                     '<td>' + returnedData[i]['subscriptionStart'] + '</td>' +
                                     '<td>' + (returnedData[i]['subscriptionEnd'] ? returnedData[i]['subscriptionEnd'] : '') + '</td>' +
                                     '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger "></i>')  + '</td>' +
-                                    '<td>' + (returnedData[i]['active'] ? '<button value="' + returnedData[i]['unsubscriptionUrl'] +'" class="subscription-deactivate btn btn-sm btn-danger custom-buttom-margin">Deactivate</button>' : '') + '</td>' +
+                                    '<td>' + (returnedData[i]['unsubscriptionUrl'] ? '<button value="' + returnedData[i]['unsubscriptionUrl'] +'" class="subscription-deactivate btn btn-sm btn-danger custom-buttom-margin">Deactivate</button>' : '') + '</td>' +
                                     '</tr>');
                             }
-                        } else if(returnedData && returnedData.length > 0) {
+                            subscriptionsTable.footable();
+                            addListeners();
+                        } else if(returnedData && returnedData.length === 0) {
                             swal ( {
                                 title: "Oops...",
-                                text: "Not found subscriptions!",
+                                text: "Not found subscriptions for " + msisdn + " (" + carrier + ")",
+                                type: "info",
+                                confirmButtonColor: "#3e9c76",
+                                confirmButtonText: "OK",
+                                closeOnConfirm: true,
+                                closeOnCancel: true,
+                                allowOutsideClick: true
+                            });
+                        } else {
+                            swal ( {
+                                title: "Oops...",
+                                text: "Something went wrong!",
                                 type: "warning",
                                 confirmButtonColor: "#3e9c76",
                                 confirmButtonText: "OK",
                                 closeOnConfirm: true,
-                                closeOnCancel: true
+                                closeOnCancel: true,
+                                allowOutsideClick: true
                             });
                         }
-                        else {
-                            swal ( {
-                                title: "Oops...",
-                                text: "Something went wrong!",
-                                type: "error",
-                                confirmButtonColor: "#3e9c76",
-                                confirmButtonText: "OK",
-                                closeOnConfirm: true,
-                                closeOnCancel: true
-                            });
-                        }
-                        subscriptionsTable.footable();
-                        addListeners();
                     }, 'json');
             });
 
-            function addListeners(){
-                $('.subscription-deactivate').click( function( e ){
-                    e.preventDefault();
-                    var deactivationLink = this.getAttribute("value");
-                    swal ( {
-                            title: "Are you sure?",
+            $('#history').click( function () {
+                var msisdn  = $('#msisdn-input').val();
+                var carrier = $('#carrier-select').find('option:selected').val();
+                swal({
+                    title: "Loading...",
+                    text: "Please wait",
+                    imageUrl: "/assets/img/processing.gif",
+                    showConfirmButton: false,
+                    allowOutsideClick: true
+                });
+                $.post('/subscriptions/info', {
+                    "msisdn": msisdn,
+                    "carrier": carrier
+                }, function (returnedData) {
+                    console.log('Successfully received: ' + returnedData.length + ' subscriptions');
+                    if(returnedData && returnedData.length !== 0) {
+                        swal ( {
+                            title: "OK!",
+                            text: "Successfully found " + returnedData.length + " entry",
+                            type: "success",
+                            confirmButtonColor: "#3e9c76",
+                            confirmButtonText: "OK",
+                            closeOnConfirm: true,
+                            closeOnCancel: true,
+                            allowOutsideClick: true
+                        });
+                        showSubscriptionsInfoTable();
+                        $('#subscriptions-info-table-head').text("Found " + returnedData.length + " entry for msisdn: " + msisdn + " (" + carrier + ")");
+                        var subscriptionsTable = $('#subscriptions-info-table');
+                        for(var i = 0; i < returnedData.length; i++){
+                            subscriptionsTable.find('tbody').append('<tr>' +
+                                '<td>' + returnedData[i]['account'] + '</td>' +
+                                '<td>' + returnedData[i]['providerName'] + '</td>' +
+                                '<td>' + returnedData[i]['serviceName'] + '</td>' +
+                                '<td>' + (returnedData[i]['msgText'] ? "msg" : "bill") + '</td>' +
+                                '<td>' + (returnedData[i]['msgText'] ? returnedData[i]['msgText'] : returnedData[i]['chargeAmount']) + '</td>' +
+                                '<td>' + returnedData[i]['operationTime'] + '</td>' +
+                                '<td>' + (returnedData[i]['billingStatus'] === 'OK' ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger ">') + '</td>' +
+                                '<td>' + (returnedData[i]['refundUrl'] ? '<button value="' + returnedData[i]['refundUrl'] +'" class="subscription-deactivate btn btn-sm btn-warning custom-buttom-margin">Refund</button>' : '') + '</td>' +
+                                '</tr>');
+                        }
+                        subscriptionsTable.footable();
+                        addListeners();
+                    } else if(returnedData && returnedData.length === 0) {
+                        swal ( {
+                            title: "Oops...",
+                            text: "Not found information for: " + msisdn + " (" + carrier + ")",
+                            type: "info",
+                            confirmButtonColor: "#3e9c76",
+                            confirmButtonText: "OK",
+                            closeOnConfirm: true,
+                            closeOnCancel: true,
+                            allowOutsideClick: true
+                        });
+                    } else {
+                        swal ( {
+                            title: "Oops...",
+                            text: "Something went wrong!",
                             type: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: "#f45a54",
-                            cancelButtonColor: "#6e6e70",
-                            confirmButtonText: "Yes, deactivate",
-                            cancelButtonText: "No, cancel plz",
-                            closeOnConfirm: false,
-                            closeOnCancel: false,
-                            allowOutsideClick: false
-                        },
-                        function ( isConfirm ) {
-                            swal({
-                                title: "Loading...",
-                                text: "Please wait",
-                                imageUrl: "/assets/img/processing.gif",
-                                showConfirmButton: false,
-                                allowOutsideClick: false
-                            });
-                            if ( isConfirm ) {
-                                console.log('Confirm subscription deactivation');
-                                $.ajax ( {
-                                    type: "POST",
-                                    url: "/subscriptions/deactivate",
-                                    data: {
-                                        link: deactivationLink
-                                    },
-                                    success: function ( result ) {
-                                        swal ( {
-                                            title: "OK!",
-                                            text: result,
-                                            type: "success",
-                                            confirmButtonColor: "#3e9c76",
-                                            confirmButtonText: "OK",
-                                            closeOnConfirm: true,
-                                            closeOnCancel: true,
-                                            allowOutsideClick: true
-                                        });
-                                        this.attr("disabled", true);
-                                        console.log(result);
-                                        // TODO: set deactivation timestamp and status not active
-                                    },
-                                    error: function ( result ) {
-                                        swal ( {
-                                            title: "Subscription has not been successfully deactivated!",
-                                            type: "error",
-                                            confirmButtonColor: "#3e9c76",
-                                            confirmButtonText: "OK",
-                                            closeOnConfirm: true,
-                                            closeOnCancel: true,
-                                            allowOutsideClick: true
-                                        });
-                                    }
-                                } );
-                            } else {
-                                console.log('Cancel subscription deactivation');
-                                swal ( {
-                                    title: "Subscription haven't deactivated.",
-                                    type: "error",
-                                    confirmButtonColor: "#3e9c76",
-                                    confirmButtonText: "OK",
-                                    closeOnConfirm: true,
-                                    closeOnCancel: true,
-                                    allowOutsideClick: true
-                                });
-                            }
-                        })
-                })
-
-
-            }
-        });
+                            confirmButtonColor: "#3e9c76",
+                            confirmButtonText: "OK",
+                            closeOnConfirm: true,
+                            closeOnCancel: true,
+                            allowOutsideClick: true
+                        });
+                    }
+                }, 'json');
+            });
+        })
     </script>
 
 </div>
