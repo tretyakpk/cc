@@ -24,8 +24,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable();
         http.authorizeRequests()
+                .antMatchers("/assets/**").permitAll()
                 .anyRequest().authenticated()
-                .and().formLogin().loginPage("/login").defaultSuccessUrl("/", true).permitAll()
+                .and().formLogin().loginPage("/login").failureForwardUrl("/login-error")
+                .defaultSuccessUrl("/", true).permitAll()
                 .and().logout().logoutSuccessUrl("/login");
     }
 
