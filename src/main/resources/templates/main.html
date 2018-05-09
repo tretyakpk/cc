@@ -103,6 +103,22 @@
                             <div class="col-lg-12">
                                 <div class="ibox float-e-margins">
                                     <div class="ibox-title">
+                                        <h5>Total stats table</h5>
+                                        <div class="ibox-tools">
+                                            <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div id="subscriptions-stats" class="ibox-content" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div sec:authorize="hasAnyRole('ROLE_GET_USER_BILLINGS','ROLE_VODAFONE_REFUND')" class="row">
+                            <div class="col-lg-12">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title">
                                         <h5>Customer info table</h5>
                                         <div class="ibox-tools">
                                             <a class="collapse-link">
@@ -116,6 +132,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -343,6 +360,43 @@
                     '</table>');
             }
 
+            function showSubscriptionsStatsTable(subscriptionStats) {
+                var parentTable = $('#subscriptions-stats');
+                parentTable.find('table').remove();
+                parentTable.append(
+                    '<table id="subscriptions-stats-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="10">' +
+                        '<thead >' +
+                            '<tr>' +
+                                '<th class="text-center">SERVICE</th>' +
+                                '<th class="text-center">TOTAL AMOUNTH</th>' +
+                            '</tr>' +
+                        '</thead>' +
+                        '<tbody>' +
+                        '</tbody>' +
+                        '<tfoot>' +
+                            '<tr>' +
+                                '<td colspan="2">' +
+                                    '<ul class="pagination pull-right"></ul>' +
+                                '</td>' +
+                            '</tr>' +
+                        '</tfoot>' +
+                    '</table>');
+                var subscriptionTable = $('#subscriptions-stats-table');
+                var totalAmounth = 0;
+                for (var key in subscriptionStats) {
+                    totalAmounth += subscriptionStats[key]['serviceSum']/100;
+                    subscriptionTable.find('tbody').append('<tr>' +
+                        '<td>' + key + '</td>' +
+                        '<td>' + subscriptionStats[key]['serviceSum']/100 + ' Euro</td>' +
+                        '</tr>');
+                }
+                subscriptionTable.find('tbody').append('<tr>' +
+                    '<td><strong>' + 'TOTAL AMOUNT' + '</strong></td>' +
+                    '<td><strong>' + totalAmounth + ' Euro</strong></td>' +
+                    '</tr>');
+                subscriptionTable.footable();
+            }
+
             $("#find-subscriptions").click( function () {
                 var msisdn  = $('#msisdn-input').val();
                 var carrier = $('#carrier-select').find('option:selected').val();
@@ -443,6 +497,15 @@
                         var subscriptionStats = [];
                         for(var i = 0; i < returnedData.length; i++){
 
+                            if(returnedData[i]['chargeAmount'] && returnedData[i]['billingStatus'] === 'OK'){
+                                if(subscriptionStats[returnedData[i]['serviceName']] === undefined)
+                                    subscriptionStats[returnedData[i]['serviceName']] = [];
+
+                                if(subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] === undefined)
+                                    subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] = 0;
+
+                                subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] += returnedData[i]['chargeAmount'];
+                            }
                             subscriptionInfoTable.find('tbody').append('<tr>' +
                                 '<td>' + returnedData[i]['account'] + '</td>' +
                                 '<td>' + returnedData[i]['providerName'] + '</td>' +
@@ -454,8 +517,10 @@
                                 '<td>' + (returnedData[i]['refundUrl'] ? '<button value="' + returnedData[i]['refundUrl'] +'" class="subscription-refund btn btn-sm btn-warning custom-buttom-margin">Refund</button>' : '') + '</td>' +
                                 '</tr>');
                         }
+                        showSubscriptionsStatsTable(subscriptionStats);
                         subscriptionInfoTable.footable();
                         addListeners();
+
                     } else if(returnedData && returnedData.length === 0) {
                         swal ( {
                             title: "Oops...",
