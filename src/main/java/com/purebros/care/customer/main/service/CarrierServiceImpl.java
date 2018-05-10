@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
 import javax.sql.DataSource;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -110,9 +111,13 @@ public class CarrierServiceImpl implements CarrierService {
                     .msgText(                  (String) ((LinkedCaseInsensitiveMap) v).get("msg_text"))
                     .billingStatus(            (String) ((LinkedCaseInsensitiveMap) v).get("billing_status"))
                     .refundUrl(                (String) ((LinkedCaseInsensitiveMap) v).get("refund_URL"));
-            if(((LinkedCaseInsensitiveMap) v).get("chargeAmount") != null)
-                builder.chargeAmount(Float.parseFloat ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")));
-            else
+            if(((LinkedCaseInsensitiveMap) v).get("chargeAmount") != null) {
+                Object value = ((LinkedCaseInsensitiveMap) v).get("chargeAmount");
+                if(value instanceof BigInteger)
+                    builder.chargeAmount(Float.parseFloat(String.valueOf((BigInteger) value)));
+                else
+                    builder.chargeAmount(Float.parseFloat ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")));
+            } else
                 builder.chargeAmount(null);
 
             subscriptions.add(builder.build());
