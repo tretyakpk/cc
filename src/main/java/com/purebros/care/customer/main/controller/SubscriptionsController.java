@@ -59,7 +59,6 @@ public class SubscriptionsController {
     public String info(@NotNull @RequestParam("link") String link,
                        Authentication authentication){
         String result = unsubscriptionService.deactivate(link);
-
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         logger.info(userDetails.getUsername() + ": deactivation action: result: " + result + " link: " + link);
         return result;
@@ -72,11 +71,9 @@ public class SubscriptionsController {
                                             Authentication authentication){
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         SubscriptionsInfDto[] allInfo = carrierService.getAllSubscriptionsInfo(msisdn, carrier, userDetails);
-        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("VODAFONE_REFUND")))
-            Arrays.stream(allInfo).forEach(sub -> {
-                sub.setRefundUrl(null);
-            });
 
+        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_VODAFONE_REFUND")))
+            Arrays.stream(allInfo).forEach(sub -> sub.setRefundUrl(null));
         return allInfo;
     }
 
@@ -86,7 +83,7 @@ public class SubscriptionsController {
                        Authentication authentication){
         String result = refundService.refund(link);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        logger.info(userDetails.getUsername() + ": deactivation action: result: " + result + " link: " + link);
+        logger.info(userDetails.getUsername() + ": refund action: result: " + result + " link: " + link);
         return result;
     }
 }

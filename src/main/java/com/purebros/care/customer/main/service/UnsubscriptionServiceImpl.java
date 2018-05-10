@@ -28,6 +28,8 @@ public class UnsubscriptionServiceImpl implements UnsubscriptionService {
             return "Return code: " + result + ". Message: '" + env.getProperty(result) + "'";
         } catch (HttpServerErrorException e) {
             return "Service temporary unavailable please try again later: '" + e.getMessage() + "'";
+        } catch (Exception e) {
+            return "Something went wrong: '" + e.getMessage() + "'";
         }
     }
 }

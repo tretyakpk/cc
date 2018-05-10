@@ -15,6 +15,8 @@ public class RefundServiceImpl implements RefundService {
             return "Return code: '" + result + "'";
         } catch (HttpServerErrorException e) {
             return "Service temporary unavailable please try again later: '" + e.getMessage() + "'";
+        } catch (Exception e) {
+            return "Something went wrong: '" + e.getMessage() + "'";
         }
     }
 }

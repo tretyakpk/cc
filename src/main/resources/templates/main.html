@@ -275,7 +275,7 @@
                                 error: function () {
                                     swal ( {
                                         title: "Oops...",
-                                        text: "Subscription has not been successfully deactivated!",
+                                        text: "Subscription has not been successfully refunded!",
                                         type: "error",
                                         confirmButtonColor: "#3e9c76",
                                         confirmButtonText: "OK",
@@ -497,19 +497,19 @@
                         var subscriptionStats = [];
                         for(var i = 0; i < returnedData.length; i++){
 
-                            if(returnedData[i]['chargeAmount'] && returnedData[i]['billingStatus'] === 'OK'){
-                                if(subscriptionStats[returnedData[i]['serviceName']] === undefined)
-                                    subscriptionStats[returnedData[i]['serviceName']] = [];
+                            if(!returnedData[i]['msgText'] && subscriptionStats[returnedData[i]['serviceName']] === undefined)
+                                subscriptionStats[returnedData[i]['serviceName']] = [];
 
-                                if(subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] === undefined)
-                                    subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] = 0;
+                            if(!returnedData[i]['msgText'] && subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] === undefined)
+                                subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] = 0;
 
+                            if(!returnedData[i]['msgText'] && returnedData[i]['chargeAmount'] && returnedData[i]['billingStatus'] === 'OK')
                                 subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] += returnedData[i]['chargeAmount'];
-                            }
+
                             subscriptionInfoTable.find('tbody').append('<tr>' +
                                 '<td>' + returnedData[i]['account'] + '</td>' +
-                                '<td>' + returnedData[i]['providerName'] + '</td>' +
-                                '<td>' + returnedData[i]['serviceName'] + '</td>' +
+                                '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['providerName']) + '</td>' +
+                                '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['serviceName']) + '</td>' +
                                 '<td>' + (returnedData[i]['msgText'] ? "msg" : "bill") + '</td>' +
                                 '<td>' + (returnedData[i]['msgText'] ? returnedData[i]['msgText'] : returnedData[i]['chargeAmount']) + '</td>' +
                                 '<td>' + returnedData[i]['operationTime'] + '</td>' +
