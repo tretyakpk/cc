@@ -167,6 +167,7 @@
             $('.subscription-deactivate').click( function( e ){
                 e.preventDefault();
                 var deactivationLink = this.getAttribute("value");
+                var row = this.parent("tr");
                 swal ( {
                         title: "Are you sure?",
                         type: "warning",
@@ -197,16 +198,29 @@
                                 },
                                 success: function ( result ) {
                                     console.log(result);
-                                    swal ( {
-                                        title: "OK!",
-                                        text: result,
-                                        type: "success",
-                                        confirmButtonColor: "#3e9c76",
-                                        confirmButtonText: "OK",
-                                        closeOnConfirm: true,
-                                        closeOnCancel: true,
-                                        allowOutsideClick: true
-                                    });
+                                    if(result.includes("Return code")) {
+                                        swal({
+                                            title: "OK!",
+                                            text: result,
+                                            type: "success",
+                                            confirmButtonColor: "#3e9c76",
+                                            confirmButtonText: "OK",
+                                            closeOnConfirm: true,
+                                            closeOnCancel: true,
+                                            allowOutsideClick: true
+                                        });
+                                        console.log(row);
+                                    } else
+                                        swal({
+                                            title: "Oops...",
+                                            text: result,
+                                            type: "error",
+                                            confirmButtonColor: "#3e9c76",
+                                            confirmButtonText: "OK",
+                                            closeOnConfirm: true,
+                                            closeOnCancel: true,
+                                            allowOutsideClick: true
+                                        });
                                     // TODO: set deactivation timestamp and status not active and disabled true
                                 },
                                 error: function () {
@@ -260,15 +274,27 @@
                                 },
                                 success: function ( result ) {
                                     console.log(result);
-                                    swal ( {
-                                        title: "OK!",
-                                        text: result,
-                                        type: "success",
-                                        confirmButtonColor: "#3e9c76",
-                                        confirmButtonText: "OK",
-                                        closeOnConfirm: true,
-                                        closeOnCancel: true,
-                                        allowOutsideClick: true
+                                    if(result.includes("Return code"))
+                                        swal({
+                                            title: "OK!",
+                                            text: result,
+                                            type: "success",
+                                            confirmButtonColor: "#3e9c76",
+                                            confirmButtonText: "OK",
+                                            closeOnConfirm: true,
+                                            closeOnCancel: true,
+                                            allowOutsideClick: true
+                                        });
+                                    else
+                                        swal({
+                                            title: "Oops...",
+                                            text: result,
+                                            type: "error",
+                                            confirmButtonColor: "#3e9c76",
+                                            confirmButtonText: "OK",
+                                            closeOnConfirm: true,
+                                            closeOnCancel: true,
+                                            allowOutsideClick: true
                                     });
                                     // TODO: set deactivation timestamp and status not active and disabled true
                                 },
@@ -434,7 +460,7 @@
                                     '<td>' + returnedData[i]['subscriptionStart'] + '</td>' +
                                     '<td>' + (returnedData[i]['subscriptionEnd'] ? returnedData[i]['subscriptionEnd'] : '') + '</td>' +
                                     '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger "></i>')  + '</td>' +
-                                    '<td>' + (returnedData[i]['unsubscriptionUrl'] ? '<button value="' + returnedData[i]['unsubscriptionUrl'] +'" class="subscription-deactivate btn btn-sm btn-danger custom-buttom-margin">Deactivate</button>' : '') + '</td>' +
+                                    '<td>' + ((returnedData[i]['unsubscriptionUrl'] && returnedData[i]['active']) ? '<button value="' + returnedData[i]['unsubscriptionUrl'] +'" class="subscription-deactivate btn btn-sm btn-danger custom-buttom-margin">Deactivate</button>' : '') + '</td>' +
                                     '</tr>');
                             }
                             subscriptionsTable.footable();
@@ -507,11 +533,11 @@
                                 subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] += returnedData[i]['chargeAmount'];
 
                             subscriptionInfoTable.find('tbody').append('<tr>' +
-                                '<td>' + returnedData[i]['account'] + '</td>' +
+                                '<td>' + (!returnedData[i]['msgText'] ? returnedData[i]['account'] : '') + '</td>' +
                                 '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['providerName']) + '</td>' +
                                 '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['serviceName']) + '</td>' +
                                 '<td>' + (returnedData[i]['msgText'] ? "msg" : "bill") + '</td>' +
-                                '<td>' + (returnedData[i]['msgText'] ? returnedData[i]['msgText'] : returnedData[i]['chargeAmount']) + '</td>' +
+                                '<td>' + (returnedData[i]['msgText'] ? returnedData[i]['msgText'] : ((returnedData[i]['chargeAmount'] / 100) + " Euro" )) + '</td>' +
                                 '<td>' + returnedData[i]['operationTime'] + '</td>' +
                                 '<td>' + (returnedData[i]['billingStatus'] === 'OK' ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger ">') + '</td>' +
                                 '<td>' + (returnedData[i]['refundUrl'] ? '<button value="' + returnedData[i]['refundUrl'] +'" class="subscription-refund btn btn-sm btn-warning custom-buttom-margin">Refund</button>' : '') + '</td>' +

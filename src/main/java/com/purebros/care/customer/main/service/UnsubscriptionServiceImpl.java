@@ -27,9 +27,11 @@ public class UnsubscriptionServiceImpl implements UnsubscriptionService {
             String result = restTemplate.getForObject(url, String.class);
             return "Return code: " + result + ". Message: '" + env.getProperty(result) + "'";
         } catch (HttpServerErrorException e) {
+            logger.error(e.getMessage());
             return "Service temporary unavailable please try again later: '" + e.getMessage() + "'";
         } catch (Exception e) {
-            return "Something went wrong: '" + e.getMessage() + "'";
+            logger.error(e.getMessage());
+            return "Something went wrong! Please try again later.";
         }
     }
 }
