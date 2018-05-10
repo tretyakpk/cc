@@ -99,8 +99,6 @@ public class CarrierServiceImpl implements CarrierService {
 
         logger.info("--- fetched information of subscriptions for msisdn " + msisdn + ": " + res.size());
 
-        res.forEach(v -> System.out.println( ((LinkedCaseInsensitiveMap) v).get("chargeAmount")));
-
         List<SubscriptionsInfDto> subscriptions = new ArrayList<>();
         res.forEach(v -> {
             SubscriptionsInfDto.SubscriptionsInfDtoBuilder builder = SubscriptionsInfDto.builder()
