@@ -361,7 +361,7 @@
                 parentTable.append(
                     '<h3 id="subscriptions-info-table-head"></h3>'+
                     '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-info-filter" placeholder="Search in table">' +
-                    '<table id="subscriptions-info-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="10" data-filter=#subscriptions-info-filter >' +
+                    '<table id="subscriptions-info-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="15" data-filter=#subscriptions-info-filter >' +
                         '<thead >' +
                             '<tr>' +
                                 '<th class="text-center">ACCOUNT</th>' +
@@ -390,7 +390,7 @@
                 var parentTable = $('#subscriptions-stats');
                 parentTable.find('table').remove();
                 parentTable.append(
-                    '<table id="subscriptions-stats-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="10">' +
+                    '<table id="subscriptions-stats-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="5">' +
                         '<thead >' +
                             '<tr>' +
                                 '<th class="text-center">SERVICE</th>' +
@@ -413,12 +413,12 @@
                     totalAmounth += subscriptionStats[key]['serviceSum']/100;
                     subscriptionTable.find('tbody').append('<tr>' +
                         '<td>' + key + '</td>' +
-                        '<td>' + subscriptionStats[key]['serviceSum']/100 + ' Euro</td>' +
+                        '<td>' + (subscriptionStats[key]['serviceSum']/100).toFixed(2) + ' Euro</td>' +
                         '</tr>');
                 }
                 subscriptionTable.find('tbody').append('<tr>' +
                     '<td><strong>' + 'TOTAL AMOUNT' + '</strong></td>' +
-                    '<td><strong>' + totalAmounth + ' Euro</strong></td>' +
+                    '<td><strong>' + totalAmounth.toFixed(2) + ' Euro</strong></td>' +
                     '</tr>');
                 subscriptionTable.footable();
             }
@@ -426,6 +426,7 @@
             $("#find-subscriptions").click( function () {
                 var msisdn  = $('#msisdn-input').val();
                 var carrier = $('#carrier-select').find('option:selected').val();
+                var parentTable = $('#subscriptions');
                 swal({
                     title: "Loading...",
                     text: "Please wait",
@@ -476,6 +477,9 @@
                                 closeOnCancel: true,
                                 allowOutsideClick: true
                             });
+                            parentTable.find('#subscriptions-filter').remove();
+                            parentTable.find('#subscriptions-table-head').remove();
+                            parentTable.find('table').remove();
                         } else {
                             swal ( {
                                 title: "Oops...",
@@ -487,6 +491,9 @@
                                 closeOnCancel: true,
                                 allowOutsideClick: true
                             });
+                            parentTable.find('#subscriptions-filter').remove();
+                            parentTable.find('#subscriptions-table-head').remove();
+                            parentTable.find('table').remove();
                         }
                     }, 'json');
             });
@@ -494,6 +501,8 @@
             $('#history').click( function () {
                 var msisdn  = $('#msisdn-input').val();
                 var carrier = $('#carrier-select').find('option:selected').val();
+                var parentTable = $('#subscriptions-info');
+                var subscriptionStatsTable = $('#subscriptions-stats');
                 swal({
                     title: "Loading...",
                     text: "Please wait",
@@ -505,7 +514,7 @@
                     "msisdn": msisdn,
                     "carrier": carrier
                 }, function (returnedData) {
-                    console.log('Successfully received: ' + returnedData.length + ' subscriptions');
+                    console.log('Successfully received: ' + returnedData.length + ' entries');
                     if(returnedData && returnedData.length !== 0) {
                         swal ( {
                             title: "OK!",
@@ -558,6 +567,10 @@
                             closeOnCancel: true,
                             allowOutsideClick: true
                         });
+                        parentTable.find('#subscriptions-info-filter').remove();
+                        parentTable.find('#subscriptions-info-table-head').remove();
+                        parentTable.find('table').remove();
+                        subscriptionStatsTable.find('table').remove();
                     } else {
                         swal ( {
                             title: "Oops...",
@@ -569,6 +582,9 @@
                             closeOnCancel: true,
                             allowOutsideClick: true
                         });
+                        parentTable.find('#subscriptions-info-filter').remove();
+                        parentTable.find('table').remove();
+                        subscriptionStatsTable.find('table').remove();
                     }
                 }, 'json');
             });
