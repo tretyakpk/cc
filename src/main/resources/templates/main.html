@@ -167,7 +167,6 @@
             $('.subscription-deactivate').click( function( e ){
                 e.preventDefault();
                 var deactivationLink = this.getAttribute("value");
-                var row = this.parent("tr");
                 swal ( {
                         title: "Are you sure?",
                         type: "warning",
@@ -209,7 +208,6 @@
                                             closeOnCancel: true,
                                             allowOutsideClick: true
                                         });
-                                        console.log(row);
                                     } else
                                         swal({
                                             title: "Oops...",
@@ -221,7 +219,6 @@
                                             closeOnCancel: true,
                                             allowOutsideClick: true
                                         });
-                                    // TODO: set deactivation timestamp and status not active and disabled true
                                 },
                                 error: function () {
                                     swal ( {
