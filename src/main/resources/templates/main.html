@@ -2,13 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Pure Bros Customer care service</title>
-    <link rel="shortcut icon" type="image/x-icon" href="http://purebros.it/wp-content/uploads/2015/11/Favicon-PB.png">
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/assets/img/favicon.png}">
     <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/assets/font-awesome/css/font-awesome.css}" rel="stylesheet">
     <link th:href="@{/assets/css/animate.css}" rel="stylesheet">
@@ -22,6 +21,9 @@
 
     <!-- footable css -->
     <link th:href="@{/assets/css/plugins/footable/footable.core.css}" rel="stylesheet">
+
+    <!-- Toastr style -->
+    <link th:href="@{/assets/css/plugins/toastr/toastr.min.css}" rel="stylesheet">
 </head>
 
 <body class="top-navigation pace-done">
@@ -71,13 +73,9 @@
                                                 <option th:value="h3g">H3G</option>
                                             </select>
                                     </div>
-                                    <div sec:authorize="hasAnyRole('GET_USER_SERVICE_SUBSCRIPTIONS','SERVICE_UNSUBSCRIPTION')" class="col-md-1 col-sm-2">
+                                    <div sec:authorize="isAuthenticated()" class="col-md-1 col-sm-2">
                                         <label for="find-subscriptions"><br></label>
-                                        <a title="Find subs"  class="search btn custom-bg" id="find-subscriptions">Search</a>
-                                    </div>
-                                    <div sec:authorize="hasAnyRole('ROLE_GET_USER_BILLINGS','ROLE_VODAFONE_REFUND')" class="col-md-1 col-sm-2">
-                                        <label for="history"><br></label>
-                                        <button title="Find data"  class="btn custom-bg" id="history">History</button>
+                                        <a title="Find subs"  class="search btn custom-bg" id="find-subscriptions">Find</a>
                                     </div>
                                 </div>
                             </div>
@@ -132,16 +130,14 @@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
                 </div>
             </div>
         </div>
-        <div class="footer">
-            <div>
-                <strong>Copyright:</strong> Pure Bros Mobile 2018
-            </div>
-        </div>
+                <div class="footer">
+                    <div>
+                        <strong>Copyright:</strong> Pure Bros Mobile 2018
+                    </div>
+                </div>
 
     </div>
 
@@ -161,7 +157,264 @@
     <script th:src="@{/assets/js/inspinia.js}"></script>
     <script th:src="@{/assets/js/plugins/pace/pace.min.js}"></script>
 
+    <!-- Toastr -->
+    <script th:src="@{/assets/js/plugins/toastr/toastr.min.js}"></script>
+
     <!-- page-level scripts -->
+    <script>
+
+        toastr.options = {
+            "progressBar": false,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "4000",
+            "extendedTimeOut": "1000"
+        };
+
+        function removeSubscriptionTables() {
+            var subscriptionsTable = $('#subscriptions');
+            subscriptionsTable.find('#subscriptions-filter').remove();
+            subscriptionsTable.find('#subscriptions-table-head').remove();
+            subscriptionsTable.find('table').remove();
+
+            var subscriptionsInfoTable = $('#subscriptions-info');
+            subscriptionsInfoTable.find('#subscriptions-info-table-head').remove();
+            subscriptionsInfoTable.find('#subscriptions-info-filter').remove();
+            subscriptionsInfoTable.find('table').remove();
+
+            var subscriptionsStatsTable = $('#subscriptions-stats');
+            subscriptionsStatsTable.find('table').remove();
+        }
+
+        function showSubscriptionsTable() {
+            var parentTable = $('#subscriptions');
+            parentTable.append(
+                '<h3 id="subscriptions-table-head"></h3>'+
+                '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-filter" placeholder="Search in table">' +
+                '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="10" data-filter=#subscriptions-filter >' +
+                '<thead >' +
+                '<tr>' +
+                '<th class="text-center">ACCOUNT</th>' +
+                '<th class="text-center">CSP</th>' +
+                '<th class="text-center">SERVICE</th>' +
+                '<th class="text-center">SUBSCRIBED FROM</th>' +
+                '<th class="text-center">SUBSCRIBED TO</th>' +
+                '<th class="text-center" data-sort-ignore="true">STATUS</th>' +
+                '<th class="text-center" data-sort-ignore="true"></th>' +
+                '<th class="text-center" data-sort-ignore="true"></th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>' +
+                '</tbody>' +
+                '<tfoot>' +
+                '<tr>' +
+                '<td colspan="9">' +
+                '<ul class="pagination pull-right"></ul>' +
+                '</td>' +
+                '</tr>' +
+                '</tfoot>' +
+                '</table>');
+        }
+
+        function showSubscriptionsInfoTable() {
+            var parentTable = $('#subscriptions-info');
+            parentTable.append(
+                '<h3 id="subscriptions-info-table-head"></h3>'+
+                '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-info-filter" placeholder="Search in table">' +
+                '<table id="subscriptions-info-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="15" data-filter=#subscriptions-info-filter >' +
+                '<thead >' +
+                '<tr>' +
+                '<th class="text-center">ACCOUNT</th>' +
+                '<th class="text-center">CSP</th>' +
+                '<th class="text-center">SERVICE</th>' +
+                '<th class="text-center" data-sort-ignore="true">TYPE</th>' +
+                '<th class="text-center" data-sort-ignore="true">BILL/MSG</th>' +
+                '<th class="text-center">OPERATION TIME</th>' +
+                '<th class="text-center" data-sort-ignore="true">STATUS</th>' +
+                '<th class="text-center" data-sort-ignore="true"></th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>' +
+                '</tbody>' +
+                '<tfoot>' +
+                '<tr>' +
+                '<td colspan="10">' +
+                '<ul class="pagination pull-right"></ul>' +
+                '</td>' +
+                '</tr>' +
+                '</tfoot>' +
+                '</table>');
+        }
+
+        function showSubscriptionsStatsTable(subscriptionStats) {
+            var parentTable = $('#subscriptions-stats');
+            parentTable.append(
+                '<table id="subscriptions-stats-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="5">' +
+                '<thead >' +
+                '<tr>' +
+                '<th class="text-center">SERVICE</th>' +
+                '<th class="text-center">TOTAL AMOUNTH</th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>' +
+                '</tbody>' +
+                '<tfoot>' +
+                '<tr>' +
+                '<td colspan="2">' +
+                '<ul class="pagination pull-right"></ul>' +
+                '</td>' +
+                '</tr>' +
+                '</tfoot>' +
+                '</table>');
+            var subscriptionTable = $('#subscriptions-stats-table');
+            var totalAmounth = 0;
+            for (var key in subscriptionStats) {
+                totalAmounth += subscriptionStats[key]['serviceSum']/100;
+                subscriptionTable.find('tbody').append('<tr>' +
+                    '<td>' + key + '</td>' +
+                    '<td>' + (subscriptionStats[key]['serviceSum']/100).toFixed(2) + ' Euro</td>' +
+                    '</tr>');
+            }
+            subscriptionTable.find('tbody').append('<tr>' +
+                '<td><strong>' + 'TOTAL AMOUNT' + '</strong></td>' +
+                '<td><strong>' + totalAmounth.toFixed(2) + ' Euro</strong></td>' +
+                '</tr>');
+            subscriptionTable.footable();
+        }
+
+        function fillSubscriptionsTable(returnedData, msisdn, carrier) {
+            showSubscriptionsTable();
+            var subscriptionsTable = $('#subscriptions-table');
+            $('#subscriptions-table-head').text("Found " + returnedData.length + " subscriptions for msisdn: " + msisdn + " (" + carrier + ")");
+            for(var i = 0; i < returnedData.length; i++){
+                subscriptionsTable.find('tbody').append('<tr>' +
+                    '<td>' + returnedData[i]['account'] + '</td>' +
+                    '<td>' + returnedData[i]['providerName'] + '</td>' +
+                    '<td>' + returnedData[i]['serviceName'] + '</td>' +
+                    '<td>' + returnedData[i]['subscriptionStart'] + '</td>' +
+                    '<td>' + (returnedData[i]['subscriptionEnd'] ? returnedData[i]['subscriptionEnd'] : '') + '</td>' +
+                    '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger "></i>')  + '</td>' +
+                    '<td>' + ((returnedData[i]['unsubscriptionUrl'] && returnedData[i]['active']) ? '<button value="' + returnedData[i]['unsubscriptionUrl'] +'" class="subscription-deactivate btn btn-sm btn-danger custom-buttom-margin">Deactivate</button>' : '') + '</td>' +
+                    '</tr>');
+            }
+            subscriptionsTable.footable();
+            addListeners();
+        }
+
+        function fillSubscriptionsInfoTable(returnedData, msisdn, carrier) {
+            showSubscriptionsInfoTable();
+            $('#subscriptions-info-table-head').text("Found " + returnedData.length + " entry for msisdn: " + msisdn + " (" + carrier + ")");
+            var subscriptionInfoTable = $('#subscriptions-info-table');
+            var subscriptionStats = [];
+            for(var i = 0; i < returnedData.length; i++){
+
+                if(!returnedData[i]['msgText'] && subscriptionStats[returnedData[i]['serviceName']] === undefined)
+                    subscriptionStats[returnedData[i]['serviceName']] = [];
+
+                if(!returnedData[i]['msgText'] && subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] === undefined)
+                    subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] = 0;
+
+                if(!returnedData[i]['msgText'] && returnedData[i]['chargeAmount'] && returnedData[i]['billingStatus'] === 'OK')
+                    subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] += returnedData[i]['chargeAmount'];
+
+                subscriptionInfoTable.find('tbody').append('<tr>' +
+                    '<td>' + (!returnedData[i]['msgText'] ? returnedData[i]['account'] : '') + '</td>' +
+                    '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['providerName']) + '</td>' +
+                    '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['serviceName']) + '</td>' +
+                    '<td>' + (returnedData[i]['msgText'] ? "msg" : "bill") + '</td>' +
+                    '<td>' + (returnedData[i]['msgText'] ? returnedData[i]['msgText'] : ((returnedData[i]['chargeAmount'] / 100) + " Euro" )) + '</td>' +
+                    '<td>' + returnedData[i]['operationTime'] + '</td>' +
+                    '<td>' + (returnedData[i]['billingStatus'] === 'OK' ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger ">') + '</td>' +
+                    '<td>' + (returnedData[i]['refundUrl'] ? '<button value="' + returnedData[i]['refundUrl'] +'" class="subscription-refund btn btn-sm btn-warning custom-buttom-margin">Refund</button>' : '') + '</td>' +
+                    '</tr>');
+            }
+            showSubscriptionsStatsTable(subscriptionStats);
+            subscriptionInfoTable.footable();
+            addListeners();
+        }
+    </script>
+    <script sec:authorize="hasAnyRole('GET_USER_SERVICE_SUBSCRIPTIONS','SERVICE_UNSUBSCRIPTION')">
+        function findSubscriptionsHandler() {
+            var msisdn  = $('#msisdn-input').val();
+            var carrier = $('#carrier-select').find('option:selected').val();
+            toastr.info("Loading subscription data", "Please wait...", {"progressBar": true});
+            $.post('/subscriptions', {
+                "msisdn": msisdn,
+                "carrier": carrier
+            }, 'json')
+                .done(function (returnedData) {
+                    removeSubscriptionTables();
+                    console.log('Successfully received: ' + returnedData.length + ' subscriptions');
+
+                    if(returnedData && returnedData.length > 0)
+                        toastr.success("Successfully found " + returnedData.length + " subscriptions", "OK!");
+                    else if(returnedData && returnedData.length === 0)
+                        toastr.warning("Not found subscriptions for " + msisdn + " (" + carrier + ")", "Oops...");
+
+                    if(returnedData && returnedData.length > 0)
+                        fillSubscriptionsTable(returnedData, msisdn, carrier);
+
+                }).fail(function() {
+                toastr.error("Something went wrong!", "Oops...");
+            });
+        }
+    </script>
+
+    <!-- refunding role scripts: -->
+    <script sec:authorize="hasAnyRole('ROLE_GET_USER_BILLINGS','ROLE_VODAFONE_REFUND')">
+        function findSubscriptionsHandler() {
+            removeSubscriptionTables();
+
+            var msisdn  = $('#msisdn-input').val();
+            var carrier = $('#carrier-select').find('option:selected').val();
+
+            toastr.info("Loading subscriptions", "Please wait...", {"progressBar": true});
+            $.post('/subscriptions', {
+                "msisdn": msisdn,
+                "carrier": carrier
+            }, 'json')
+                .done(function (returnedData) {
+                    console.log('Successfully received: ' + returnedData.length + ' subscriptions');
+
+                    if(returnedData && returnedData.length > 0)
+                        toastr.success("Successfully found " + returnedData.length + " subscriptions", "OK!");
+                    else if(returnedData && returnedData.length === 0)
+                        toastr.warning("Not found subscriptions for " + msisdn + " (" + carrier + ")", "Oops...");
+
+                    if(returnedData && returnedData.length > 0)
+                        fillSubscriptionsTable(returnedData, msisdn, carrier);
+
+                }).fail(function() {
+                toastr.error("Something went wrong!", "Oops...");
+            });
+
+            toastr.info("Loading subscription information", "Please wait...", {"progressBar": true});
+            $.post('/subscriptions/info', {
+                "msisdn": msisdn,
+                "carrier": carrier
+            }, 'json')
+                .done(function (returnedData) {
+                    console.log('Successfully received: ' + returnedData.length + ' entry');
+
+                    if(returnedData && returnedData.length > 0)
+                        toastr.success("Successfully found " + returnedData.length + " entry", "OK!");
+                    else if(returnedData && returnedData.length === 0)
+                        toastr.warning("Not found subscriptions information for " + msisdn + " (" + carrier + ")", "Oops...");
+
+                    if(returnedData && returnedData.length > 0)
+                        fillSubscriptionsInfoTable(returnedData, msisdn, carrier);
+
+                }).fail(function() {
+                toastr.error("Something went wrong!", "Oops...");
+            });
+        }
+
+    </script>
+    <script>
+        $("#find-subscriptions").click( function () {
+            findSubscriptionsHandler()
+        } );
+    </script>
     <script>
         function addListeners(){
             $('.subscription-deactivate').click( function( e ){
@@ -175,101 +428,17 @@
                         cancelButtonColor: "#6e6e70",
                         confirmButtonText: "Yes, deactivate",
                         cancelButtonText: "No, cancel plz",
-                        closeOnConfirm: false,
+                        closeOnConfirm: true,
                         closeOnCancel: true,
                         allowOutsideClick: true
-                    },
-                    function ( isConfirm ) {
+                    }, function ( isConfirm ) {
                         if ( isConfirm ) {
                             console.log('Confirm subscription deactivation');
-                            swal({
-                                title: "Processing...",
-                                text: "Please wait",
-                                imageUrl: "/assets/img/processing.gif",
-                                showConfirmButton: false,
-                                allowOutsideClick: true
-                            });
-                            $.ajax ( {
-                                type: "POST",
-                                url: "/subscriptions/deactivate",
-                                data: {
-                                    link: deactivationLink
-                                },
-                                success: function ( result ) {
-                                    console.log(result);
-                                    if(result.includes("Return code")) {
-                                        swal({
-                                            title: "OK!",
-                                            text: result,
-                                            type: "success",
-                                            confirmButtonColor: "#3e9c76",
-                                            confirmButtonText: "OK",
-                                            closeOnConfirm: true,
-                                            closeOnCancel: true,
-                                            allowOutsideClick: true
-                                        });
-                                    } else
-                                        swal({
-                                            title: "Oops...",
-                                            text: result,
-                                            type: "error",
-                                            confirmButtonColor: "#3e9c76",
-                                            confirmButtonText: "OK",
-                                            closeOnConfirm: true,
-                                            closeOnCancel: true,
-                                            allowOutsideClick: true
-                                        });
-                                },
-                                error: function () {
-                                    swal ( {
-                                        title: "Oops...",
-                                        text: "Subscription has not been successfully deactivated!",
-                                        type: "error",
-                                        confirmButtonColor: "#3e9c76",
-                                        confirmButtonText: "OK",
-                                        closeOnConfirm: true,
-                                        closeOnCancel: true,
-                                        allowOutsideClick: true
-                                    });
-                                }
-                            } );
-                        } else {
-                            console.log('Cancel subscription deactivation');
-                        }
-                    })
-            });
-            $('.subscription-refund').click( function( e ){
-                e.preventDefault();
-                var refundLink = this.getAttribute("value");
-                swal ( {
-                        title: "Are you sure?",
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#f45a54",
-                        cancelButtonColor: "#6e6e70",
-                        confirmButtonText: "Yes, refund",
-                        cancelButtonText: "No, cancel plz",
-                        closeOnConfirm: false,
-                        closeOnCancel: true,
-                        allowOutsideClick: true
-                    },
-                    function ( isConfirm ) {
-                        if ( isConfirm ) {
-                            console.log('Confirm billing refund');
-                            swal({
-                                title: "Processing...",
-                                text: "Please wait",
-                                imageUrl: "/assets/img/processing.gif",
-                                showConfirmButton: false,
-                                allowOutsideClick: true
-                            });
-                            $.ajax ( {
-                                type: "POST",
-                                url: "/subscriptions/refund",
-                                data: {
-                                    link: refundLink
-                                },
-                                success: function ( result ) {
+                            toastr.info("Please wait...", "Processing");
+                            $.post('/subscriptions/deactivate', {
+                                link: deactivationLink
+                            }, 'json')
+                                .done(function (result) {
                                     console.log(result);
                                     if(result.includes("Return code"))
                                         swal({
@@ -292,11 +461,76 @@
                                             closeOnConfirm: true,
                                             closeOnCancel: true,
                                             allowOutsideClick: true
-                                    });
-                                    // TODO: set deactivation timestamp and status not active and disabled true
-                                },
-                                error: function () {
+                                        });
+                                })
+                                .fail(function() {
                                     swal ( {
+                                        title: "Oops...",
+                                        text: "Subscription has not been successfully deactivated!",
+                                        type: "error",
+                                        confirmButtonColor: "#3e9c76",
+                                        confirmButtonText: "OK",
+                                        closeOnConfirm: true,
+                                        closeOnCancel: true,
+                                        allowOutsideClick: true
+                                    });
+                            });
+                        } else {
+                            console.log('Cancel subscription deactivation');
+                            toastr.warning("Cancel subscription deactivation", "Cancel");
+                        }
+                    })
+            });
+
+            $('.subscription-refund').click( function( e ){
+                e.preventDefault();
+                var refundLink = this.getAttribute("value");
+                swal ( {
+                        title: "Are you sure?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#f45a54",
+                        cancelButtonColor: "#6e6e70",
+                        confirmButtonText: "Yes, refund",
+                        cancelButtonText: "No, cancel plz",
+                        closeOnConfirm: true,
+                        closeOnCancel: true,
+                        allowOutsideClick: true
+                    },
+                    function ( isConfirm ) {
+                        if ( isConfirm ) {
+                            console.log('Confirm billing refund');
+                            toastr.info("Please wait...", "Processing");
+                            $.post('/subscriptions/refund', {
+                                link: refundLink
+                            }, 'json')
+                                .done(function (result) {
+                                    console.log(result);
+                                    if(result.includes("Return code"))
+                                        swal({
+                                            title: "OK!",
+                                            text: result,
+                                            type: "success",
+                                            confirmButtonColor: "#3e9c76",
+                                            confirmButtonText: "OK",
+                                            closeOnConfirm: true,
+                                            closeOnCancel: true,
+                                            allowOutsideClick: true
+                                        });
+                                    else
+                                        swal({
+                                            title: "Oops...",
+                                            text: result,
+                                            type: "error",
+                                            confirmButtonColor: "#3e9c76",
+                                            confirmButtonText: "OK",
+                                            closeOnConfirm: true,
+                                            closeOnCancel: true,
+                                            allowOutsideClick: true
+                                        });
+                                })
+                                .fail(function() {
+                                    swal({
                                         title: "Oops...",
                                         text: "Subscription has not been successfully refunded!",
                                         type: "error",
@@ -306,288 +540,15 @@
                                         closeOnCancel: true,
                                         allowOutsideClick: true
                                     });
-                                }
-                            } );
+                                })
                         } else {
                             console.log('Cancel subscription deactivation');
+                            toastr.warning("Cancel subscription refunding", "Cancel");
                         }
                     })
             })
         }
     </script>
-
-    <script>
-        $(document).ready(function() {
-            function showSubscriptionsTable() {
-                var parentTable = $('#subscriptions');
-                parentTable.find('#subscriptions-filter').remove();
-                parentTable.find('#subscriptions-table-head').remove();
-                parentTable.find('table').remove();
-                parentTable.append(
-                    '<h3 id="subscriptions-table-head"></h3>'+
-                    '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-filter" placeholder="Search in table">' +
-                    '<table id="subscriptions-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="10" data-filter=#subscriptions-filter >' +
-                        '<thead >' +
-                            '<tr>' +
-                                '<th class="text-center">ACCOUNT</th>' +
-                                '<th class="text-center">CSP</th>' +
-                                '<th class="text-center">SERVICE</th>' +
-                                '<th class="text-center">SUBSCRIBED FROM</th>' +
-                                '<th class="text-center">SUBSCRIBED TO</th>' +
-                                '<th class="text-center" data-sort-ignore="true">STATUS</th>' +
-                                '<th class="text-center" data-sort-ignore="true"></th>' +
-                                '<th class="text-center" data-sort-ignore="true"></th>' +
-                            '</tr>' +
-                        '</thead>' +
-                        '<tbody>' +
-                        '</tbody>' +
-                        '<tfoot>' +
-                            '<tr>' +
-                                '<td colspan="9">' +
-                                    '<ul class="pagination pull-right"></ul>' +
-                                '</td>' +
-                            '</tr>' +
-                        '</tfoot>' +
-                    '</table>');
-            }
-
-            function showSubscriptionsInfoTable() {
-                var parentTable = $('#subscriptions-info');
-                parentTable.find('#subscriptions-info-filter').remove();
-                parentTable.find('table').remove();
-                parentTable.append(
-                    '<h3 id="subscriptions-info-table-head"></h3>'+
-                    '<input type="text" class="form-control input-sm m-b-xs custom-search-field" id="subscriptions-info-filter" placeholder="Search in table">' +
-                    '<table id="subscriptions-info-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="15" data-filter=#subscriptions-info-filter >' +
-                        '<thead >' +
-                            '<tr>' +
-                                '<th class="text-center">ACCOUNT</th>' +
-                                '<th class="text-center">CSP</th>' +
-                                '<th class="text-center">SERVICE</th>' +
-                                '<th class="text-center" data-sort-ignore="true">TYPE</th>' +
-                                '<th class="text-center" data-sort-ignore="true">BILL/MSG</th>' +
-                                '<th class="text-center">OPERATION TIME</th>' +
-                                '<th class="text-center" data-sort-ignore="true">STATUS</th>' +
-                                '<th class="text-center" data-sort-ignore="true"></th>' +
-                            '</tr>' +
-                        '</thead>' +
-                        '<tbody>' +
-                        '</tbody>' +
-                        '<tfoot>' +
-                            '<tr>' +
-                                '<td colspan="10">' +
-                                    '<ul class="pagination pull-right"></ul>' +
-                                '</td>' +
-                            '</tr>' +
-                        '</tfoot>' +
-                    '</table>');
-            }
-
-            function showSubscriptionsStatsTable(subscriptionStats) {
-                var parentTable = $('#subscriptions-stats');
-                parentTable.find('table').remove();
-                parentTable.append(
-                    '<table id="subscriptions-stats-table" class="table table-hover table-stripped toggle-arrow-tiny text-center" data-page-size="5">' +
-                        '<thead >' +
-                            '<tr>' +
-                                '<th class="text-center">SERVICE</th>' +
-                                '<th class="text-center">TOTAL AMOUNTH</th>' +
-                            '</tr>' +
-                        '</thead>' +
-                        '<tbody>' +
-                        '</tbody>' +
-                        '<tfoot>' +
-                            '<tr>' +
-                                '<td colspan="2">' +
-                                    '<ul class="pagination pull-right"></ul>' +
-                                '</td>' +
-                            '</tr>' +
-                        '</tfoot>' +
-                    '</table>');
-                var subscriptionTable = $('#subscriptions-stats-table');
-                var totalAmounth = 0;
-                for (var key in subscriptionStats) {
-                    totalAmounth += subscriptionStats[key]['serviceSum']/100;
-                    subscriptionTable.find('tbody').append('<tr>' +
-                        '<td>' + key + '</td>' +
-                        '<td>' + (subscriptionStats[key]['serviceSum']/100).toFixed(2) + ' Euro</td>' +
-                        '</tr>');
-                }
-                subscriptionTable.find('tbody').append('<tr>' +
-                    '<td><strong>' + 'TOTAL AMOUNT' + '</strong></td>' +
-                    '<td><strong>' + totalAmounth.toFixed(2) + ' Euro</strong></td>' +
-                    '</tr>');
-                subscriptionTable.footable();
-            }
-
-            $("#find-subscriptions").click( function () {
-                var msisdn  = $('#msisdn-input').val();
-                var carrier = $('#carrier-select').find('option:selected').val();
-                var parentTable = $('#subscriptions');
-                swal({
-                    title: "Loading...",
-                    text: "Please wait",
-                    imageUrl: "/assets/img/processing.gif",
-                    showConfirmButton: false,
-                    allowOutsideClick: true
-                });
-                $.post('/subscriptions', {
-                        "msisdn": msisdn,
-                        "carrier": carrier
-                    }, function (returnedData) {
-                        console.log('Successfully received: ' + returnedData.length + ' subscriptions');
-                        if(returnedData && returnedData.length !== 0) {
-                            swal ( {
-                                title: "OK!",
-                                text: "Successfully found " + returnedData.length + " subscriptions",
-                                type: "success",
-                                confirmButtonColor: "#3e9c76",
-                                confirmButtonText: "OK",
-                                closeOnConfirm: true,
-                                closeOnCancel: true,
-                                allowOutsideClick: true
-                            });
-                            showSubscriptionsTable();
-                            var subscriptionsTable = $('#subscriptions-table');
-                            $('#subscriptions-table-head').text("Found " + returnedData.length + " subscriptions for msisdn: " + msisdn + " (" + carrier + ")");
-                            for(var i = 0; i < returnedData.length; i++){
-                                subscriptionsTable.find('tbody').append('<tr>' +
-                                    '<td>' + returnedData[i]['account'] + '</td>' +
-                                    '<td>' + returnedData[i]['providerName'] + '</td>' +
-                                    '<td>' + returnedData[i]['serviceName'] + '</td>' +
-                                    '<td>' + returnedData[i]['subscriptionStart'] + '</td>' +
-                                    '<td>' + (returnedData[i]['subscriptionEnd'] ? returnedData[i]['subscriptionEnd'] : '') + '</td>' +
-                                    '<td>' + (returnedData[i]['active'] ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger "></i>')  + '</td>' +
-                                    '<td>' + ((returnedData[i]['unsubscriptionUrl'] && returnedData[i]['active']) ? '<button value="' + returnedData[i]['unsubscriptionUrl'] +'" class="subscription-deactivate btn btn-sm btn-danger custom-buttom-margin">Deactivate</button>' : '') + '</td>' +
-                                    '</tr>');
-                            }
-                            subscriptionsTable.footable();
-                            addListeners();
-                        } else if(returnedData && returnedData.length === 0) {
-                            swal ( {
-                                title: "Oops...",
-                                text: "Not found subscriptions for " + msisdn + " (" + carrier + ")",
-                                type: "info",
-                                confirmButtonColor: "#3e9c76",
-                                confirmButtonText: "OK",
-                                closeOnConfirm: true,
-                                closeOnCancel: true,
-                                allowOutsideClick: true
-                            });
-                            parentTable.find('#subscriptions-filter').remove();
-                            parentTable.find('#subscriptions-table-head').remove();
-                            parentTable.find('table').remove();
-                        } else {
-                            swal ( {
-                                title: "Oops...",
-                                text: "Something went wrong!",
-                                type: "warning",
-                                confirmButtonColor: "#3e9c76",
-                                confirmButtonText: "OK",
-                                closeOnConfirm: true,
-                                closeOnCancel: true,
-                                allowOutsideClick: true
-                            });
-                            parentTable.find('#subscriptions-filter').remove();
-                            parentTable.find('#subscriptions-table-head').remove();
-                            parentTable.find('table').remove();
-                        }
-                    }, 'json');
-            });
-
-            $('#history').click( function () {
-                var msisdn  = $('#msisdn-input').val();
-                var carrier = $('#carrier-select').find('option:selected').val();
-                var parentTable = $('#subscriptions-info');
-                var subscriptionStatsTable = $('#subscriptions-stats');
-                swal({
-                    title: "Loading...",
-                    text: "Please wait",
-                    imageUrl: "/assets/img/processing.gif",
-                    showConfirmButton: false,
-                    allowOutsideClick: true
-                });
-                $.post('/subscriptions/info', {
-                    "msisdn": msisdn,
-                    "carrier": carrier
-                }, function (returnedData) {
-                    console.log('Successfully received: ' + returnedData.length + ' entries');
-                    if(returnedData && returnedData.length !== 0) {
-                        swal ( {
-                            title: "OK!",
-                            text: "Successfully found " + returnedData.length + " entry",
-                            type: "success",
-                            confirmButtonColor: "#3e9c76",
-                            confirmButtonText: "OK",
-                            closeOnConfirm: true,
-                            closeOnCancel: true,
-                            allowOutsideClick: true
-                        });
-                        showSubscriptionsInfoTable();
-                        $('#subscriptions-info-table-head').text("Found " + returnedData.length + " entry for msisdn: " + msisdn + " (" + carrier + ")");
-                        var subscriptionInfoTable = $('#subscriptions-info-table');
-                        var subscriptionStats = [];
-                        for(var i = 0; i < returnedData.length; i++){
-
-                            if(!returnedData[i]['msgText'] && subscriptionStats[returnedData[i]['serviceName']] === undefined)
-                                subscriptionStats[returnedData[i]['serviceName']] = [];
-
-                            if(!returnedData[i]['msgText'] && subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] === undefined)
-                                subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] = 0;
-
-                            if(!returnedData[i]['msgText'] && returnedData[i]['chargeAmount'] && returnedData[i]['billingStatus'] === 'OK')
-                                subscriptionStats[returnedData[i]['serviceName']]['serviceSum'] += returnedData[i]['chargeAmount'];
-
-                            subscriptionInfoTable.find('tbody').append('<tr>' +
-                                '<td>' + (!returnedData[i]['msgText'] ? returnedData[i]['account'] : '') + '</td>' +
-                                '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['providerName']) + '</td>' +
-                                '<td>' + (returnedData[i]['msgText'] ? '' : returnedData[i]['serviceName']) + '</td>' +
-                                '<td>' + (returnedData[i]['msgText'] ? "msg" : "bill") + '</td>' +
-                                '<td>' + (returnedData[i]['msgText'] ? returnedData[i]['msgText'] : ((returnedData[i]['chargeAmount'] / 100) + " Euro" )) + '</td>' +
-                                '<td>' + returnedData[i]['operationTime'] + '</td>' +
-                                '<td>' + (returnedData[i]['billingStatus'] === 'OK' ? '<i class="fa fa-check text-navy">' : '<i class="fa fa-times-circle text-danger ">') + '</td>' +
-                                '<td>' + (returnedData[i]['refundUrl'] ? '<button value="' + returnedData[i]['refundUrl'] +'" class="subscription-refund btn btn-sm btn-warning custom-buttom-margin">Refund</button>' : '') + '</td>' +
-                                '</tr>');
-                        }
-                        showSubscriptionsStatsTable(subscriptionStats);
-                        subscriptionInfoTable.footable();
-                        addListeners();
-
-                    } else if(returnedData && returnedData.length === 0) {
-                        swal ( {
-                            title: "Oops...",
-                            text: "Not found information for: " + msisdn + " (" + carrier + ")",
-                            type: "info",
-                            confirmButtonColor: "#3e9c76",
-                            confirmButtonText: "OK",
-                            closeOnConfirm: true,
-                            closeOnCancel: true,
-                            allowOutsideClick: true
-                        });
-                        parentTable.find('#subscriptions-info-filter').remove();
-                        parentTable.find('#subscriptions-info-table-head').remove();
-                        parentTable.find('table').remove();
-                        subscriptionStatsTable.find('table').remove();
-                    } else {
-                        swal ( {
-                            title: "Oops...",
-                            text: "Something went wrong!",
-                            type: "warning",
-                            confirmButtonColor: "#3e9c76",
-                            confirmButtonText: "OK",
-                            closeOnConfirm: true,
-                            closeOnCancel: true,
-                            allowOutsideClick: true
-                        });
-                        parentTable.find('#subscriptions-info-filter').remove();
-                        parentTable.find('table').remove();
-                        subscriptionStatsTable.find('table').remove();
-                    }
-                }, 'json');
-            });
-        })
-    </script>
-
 </div>
 </body>
 </html>
