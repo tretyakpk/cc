@@ -21,7 +21,7 @@ public class SubscriptionsInfDto {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date operationTime;
 
-    private Float chargeAmount;
+    private Long chargeAmount;
 
     private String msgText;
 

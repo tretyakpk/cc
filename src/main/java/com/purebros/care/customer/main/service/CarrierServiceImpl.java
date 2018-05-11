@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
 import javax.sql.DataSource;
-import java.math.BigInteger;
+import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class CarrierServiceImpl implements CarrierService {
      * @return List[SubscriptionsDto] (sorted by subscription start timestamp desc) || null
      */
     @Override
-    public List getAllSubscriptions(String msisdn, String csps) {
+    public List getAllSubscriptions(String msisdn, String csps){
         StoredProcedure procedure = new GenericStoredProcedure();
         procedure.setDataSource(dataSource);
 
@@ -60,16 +60,22 @@ public class CarrierServiceImpl implements CarrierService {
         logger.info("--- fetched subscriptions for msisdn 39" + msisdn + ": " + res.size());
 
         List<SubscriptionsDto> subscriptions = new ArrayList<>();
+
         res.forEach(v -> {
-            SubscriptionsDto sub = SubscriptionsDto.builder()
-                    .account(                  (String) ((LinkedCaseInsensitiveMap) v).get("account"))
-                    .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("Service"))
-                    .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
-                    .subscriptionStart(         (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionStart"))
-                    .subscriptionEnd(           (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionEnd"))
-                    .active( (                  (Integer) ((LinkedCaseInsensitiveMap) v).get("StateTITSrvSta")) == 0)
-                    .unsubscriptionUrl((String) ((LinkedCaseInsensitiveMap) v).get("unsubscription_URL"))
-                    .build();
+            SubscriptionsDto sub = null;
+            try {
+                sub = SubscriptionsDto.builder()
+                        .account(                  (String) ((LinkedCaseInsensitiveMap) v).get("account"))
+                        .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("Service"))
+                        .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
+                        .subscriptionStart(         (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionStart"))
+                        .subscriptionEnd(           (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionEnd"))
+                        .active( (                  (Integer) ((LinkedCaseInsensitiveMap) v).get("StateTITSrvSta")) == 0)
+                        .unsubscriptionUrl((new String((byte[]) ((LinkedCaseInsensitiveMap) v).get("unsubscription_URL"), "US-ASCII")))
+                        .build();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             subscriptions.add(sub);
         });
 
@@ -107,18 +113,10 @@ public class CarrierServiceImpl implements CarrierService {
                     .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
                     .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("serviceName"))
                     .operationTime(            (Timestamp) ((LinkedCaseInsensitiveMap) v).get("DateTimePostCont"))
-
+                    .chargeAmount((Long) ((LinkedCaseInsensitiveMap) v).get("chargeAmount"))
                     .msgText(                  (String) ((LinkedCaseInsensitiveMap) v).get("msg_text"))
                     .billingStatus(            (String) ((LinkedCaseInsensitiveMap) v).get("billing_status"))
                     .refundUrl(                (String) ((LinkedCaseInsensitiveMap) v).get("refund_URL"));
-            if(((LinkedCaseInsensitiveMap) v).get("chargeAmount") != null) {
-                Object value = ((LinkedCaseInsensitiveMap) v).get("chargeAmount");
-                if(value instanceof BigInteger)
-                    builder.chargeAmount(Float.parseFloat(String.valueOf((BigInteger) value)));
-                else
-                    builder.chargeAmount(Float.parseFloat ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")));
-            } else
-                builder.chargeAmount(null);
 
             subscriptions.add(builder.build());
         });
