@@ -253,7 +253,7 @@
                 '<thead >' +
                 '<tr>' +
                 '<th class="text-center">SERVICE</th>' +
-                '<th class="text-center">TOTAL AMOUNTH</th>' +
+                '<th class="text-center">TOTAL AMOUNT</th>' +
                 '</tr>' +
                 '</thead>' +
                 '<tbody>' +
@@ -267,9 +267,9 @@
                 '</tfoot>' +
                 '</table>');
             var subscriptionTable = $('#subscriptions-stats-table');
-            var totalAmounth = 0;
+            var totalAmount = 0;
             for (var key in subscriptionStats) {
-                totalAmounth += subscriptionStats[key]['serviceSum']/100;
+                totalAmount += subscriptionStats[key]['serviceSum']/100;
                 subscriptionTable.find('tbody').append('<tr>' +
                     '<td>' + key + '</td>' +
                     '<td>' + (subscriptionStats[key]['serviceSum']/100).toFixed(2) + ' Euro</td>' +
@@ -277,7 +277,7 @@
             }
             subscriptionTable.find('tbody').append('<tr>' +
                 '<td><strong>' + 'TOTAL AMOUNT' + '</strong></td>' +
-                '<td><strong>' + totalAmounth.toFixed(2) + ' Euro</strong></td>' +
+                '<td><strong>' + totalAmount.toFixed(2) + ' Euro</strong></td>' +
                 '</tr>');
             subscriptionTable.footable();
         }
