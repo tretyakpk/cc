@@ -17,10 +17,10 @@ public class SubscriptionsDto {
 
     private String serviceName;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "Europe/Rome")
     private Date   subscriptionStart;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "Europe/Rome")
     private Date   subscriptionEnd;
 
     private boolean active;

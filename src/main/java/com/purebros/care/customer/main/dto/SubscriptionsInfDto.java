@@ -17,7 +17,7 @@ public class SubscriptionsInfDto {
 
     private String serviceName;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "Europe/Rome")
     private Date operationTime;
 
     private Integer chargeAmount;
