@@ -15,6 +15,7 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 
 import javax.sql.DataSource;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -63,19 +64,17 @@ public class CarrierServiceImpl implements CarrierService {
 
         res.forEach(v -> {
             SubscriptionsDto sub = null;
-            try {
-                sub = SubscriptionsDto.builder()
-                        .account(                  (String) ((LinkedCaseInsensitiveMap) v).get("account"))
-                        .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("Service"))
-                        .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
-                        .subscriptionStart(         (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionStart"))
-                        .subscriptionEnd(           (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionEnd"))
-                        .active( (                  (Integer) ((LinkedCaseInsensitiveMap) v).get("StateTITSrvSta")) == 0)
-                        .unsubscriptionUrl((new String((byte[]) ((LinkedCaseInsensitiveMap) v).get("unsubscription_URL"), "US-ASCII")))
-                        .build();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+
+            sub = SubscriptionsDto.builder()
+                    .account(                  (String) ((LinkedCaseInsensitiveMap) v).get("account"))
+                    .serviceName(              (String) ((LinkedCaseInsensitiveMap) v).get("Service"))
+                    .providerName(             (String) ((LinkedCaseInsensitiveMap) v).get("CSP"))
+                    .subscriptionStart(         (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionStart"))
+                    .subscriptionEnd(           (Timestamp) ((LinkedCaseInsensitiveMap) v).get("SubscriptionEnd"))
+                    .active( (                  (Integer) ((LinkedCaseInsensitiveMap) v).get("StateTITSrvSta")) == 0)
+                    .unsubscriptionUrl((new String((byte[]) ((LinkedCaseInsensitiveMap) v).get("unsubscription_URL"), StandardCharsets.US_ASCII)))
+                    .build();
+
             subscriptions.add(sub);
         });
 
