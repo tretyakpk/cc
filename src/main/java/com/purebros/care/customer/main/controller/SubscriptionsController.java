@@ -54,19 +54,9 @@ public class SubscriptionsController {
         return allSubs;
     }
 
-    @PreAuthorize("hasAuthority('ROLE_SERVICE_UNSUBSCRIPTION')")
-    @RequestMapping(value = "/deactivate", method = RequestMethod.POST)
-    public String info(@NotNull @RequestParam("link") String link,
-                       Authentication authentication){
-        String result = unsubscriptionService.deactivate(link);
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        logger.info(userDetails.getUsername() + ": deactivation action: result: " + result + " link: " + link);
-        return result;
-    }
-
-    @PreAuthorize("hasAnyRole('ROLE_GET_USER_BILLINGS', 'ROLE_VODAFONE_REFUND')")
+    @PreAuthorize("hasAuthority('GET_USER_SERVICE_SUBSCRIPTIONS')")
     @RequestMapping(value = "/info", method = RequestMethod.POST)
-    public SubscriptionsInfDto[] deactivate(@NotNull @RequestParam("carrier") String carrier,
+    public SubscriptionsInfDto[] info(@NotNull @RequestParam("carrier") String carrier,
                                             @NotNull @RequestParam("msisdn") String msisdn,
                                             Authentication authentication){
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -77,7 +67,17 @@ public class SubscriptionsController {
         return allInfo;
     }
 
-    @PreAuthorize("hasAuthority('ROLE_SERVICE_UNSUBSCRIPTION')")
+    @PreAuthorize("hasAuthority('SERVICE_UNSUBSCRIPTION')")
+    @RequestMapping(value = "/deactivate", method = RequestMethod.POST)
+    public String deactivate(@NotNull @RequestParam("link") String link,
+                             Authentication authentication){
+        String result = unsubscriptionService.deactivate(link);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        logger.info(userDetails.getUsername() + ": deactivation action: result: " + result + " link: " + link);
+        return result;
+    }
+
+    @PreAuthorize("hasAuthority('VODAFONE_REFUND')")
     @RequestMapping(value = "/refund", method = RequestMethod.POST)
     public String refund(@NotNull @RequestParam("link") String link,
                        Authentication authentication){

@@ -13,8 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 
 @Setter @Getter
 @Service
@@ -24,13 +27,16 @@ public class CarrierServiceImpl implements CarrierService {
 
     private final Environment env;
 
+    private final Integer offset;
+
     @Autowired
     public CarrierServiceImpl(Environment env) {
         this.env = env;
+        this.offset = LocalDateTime.now().atZone(ZoneId.of(this.env.getProperty("timezone"))).getOffset().getTotalSeconds() * 1000;
     }
 
     @Override
-    public SubscriptionsDto[] getAllSubscriptions(String msisdn, String carrier, CustomUserDetails userDetails) {
+    public SubscriptionsDto[] getAllSubscriptions(String msisdn, String carrier, CustomUserDetails userDetails){
 
         String url = env.getProperty("servlet" + "." + carrier.toLowerCase()) + "/subscriptions";
 
@@ -45,6 +51,13 @@ public class CarrierServiceImpl implements CarrierService {
         SubscriptionsDto[] subscriptionsDtos = restTemplate.getForObject(builder.toUriString(), SubscriptionsDto[].class);
 
         Arrays.sort(subscriptionsDtos, Comparator.comparing(SubscriptionsDto::getSubscriptionStart, Comparator.reverseOrder()));
+
+        Arrays.stream(subscriptionsDtos).forEach(sub -> {
+            if(sub.getSubscriptionStart() != null)
+                sub.setSubscriptionStart(new Date((sub.getSubscriptionStart().getTime() + offset)));
+            if(sub.getSubscriptionEnd() != null)
+                sub.setSubscriptionEnd(new Date((sub.getSubscriptionEnd().getTime() + offset)));
+        });
 
         logger.info(userDetails.getName() + ": find subscriptions: " + subscriptionsDtos.length + "; carrier: " + carrier + "; msisdn: " + msisdn);
 
@@ -67,6 +80,11 @@ public class CarrierServiceImpl implements CarrierService {
         SubscriptionsInfDto[] subscriptionsInfDtos = restTemplate.getForObject(builder.toUriString(), SubscriptionsInfDto[].class);
 
         Arrays.sort(subscriptionsInfDtos, Comparator.comparing(SubscriptionsInfDto::getOperationTime, Comparator.reverseOrder()));
+
+        Arrays.stream(subscriptionsInfDtos).forEach(sub -> {
+            if (sub.getOperationTime() != null)
+                sub.setOperationTime(new Date((sub.getOperationTime().getTime() + offset)));
+        });
 
         logger.info(userDetails.getName() + ": Find subscriptions information: " + subscriptionsInfDtos.length + "; carrier: " + carrier + "; msisdn: " + msisdn);
 
