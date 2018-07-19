@@ -111,7 +111,7 @@ public class CarrierServiceImpl implements CarrierService {
                     .billingStatus(            (String) ((LinkedCaseInsensitiveMap) v).get("billing_status"))
                     .refundUrl(                (String) ((LinkedCaseInsensitiveMap) v).get("refund_URL"));
             if(((LinkedCaseInsensitiveMap) v).get("chargeAmount") != null)
-                builder.chargeAmount(Float.parseFloat ((String) ((LinkedCaseInsensitiveMap) v).get("chargeAmount")));
+                builder.chargeAmount(Float.parseFloat ((String.valueOf(((LinkedCaseInsensitiveMap) v).get("chargeAmount")))));
             else
                 builder.chargeAmount(null);
 
