@@ -5,3 +5,4 @@ src/main/resources/*.properties
 src/main/resources/local_settings
 src/main/resources/prod_settings
 src/main/resources/*.yaml
+*.iml
